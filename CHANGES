@@ -1,3 +1,8 @@
+2004-10-21
+----------
+* dspam support (Nagilum)
+* change CGI to use parameters instead of PATH_INFO, which not all web-servers support
+
 2004-10-04
 ----------
 * Avoid showing "milli-messages/s" on the y scale (R.M. Evers)
