@@ -257,6 +257,11 @@ sub process_line($)
 				event($time, 'rejected');
 			}
 		}
+		elsif($prog eq 'error') {
+                        if($text =~ /\bstatus=bounced\b/) {
+                                event($time, 'bounced');
+                        }
+                }
 		elsif($prog eq 'cleanup') {
 			if($text =~ /^[0-9A-F]+: (?:reject|discard): /) {
 				event($time, 'rejected');

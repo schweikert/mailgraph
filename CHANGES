@@ -1,3 +1,7 @@
+2005-01-24
+----------
+* recognize postfix/error bounces
+
 2004-11-04
 ----------
 * ignore per-recipient log entries of new amavisd-new versions
