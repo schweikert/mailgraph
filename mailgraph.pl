@@ -358,6 +358,7 @@ sub process_line($)
 		if($text =~ /spam detected from/) {
 			event($time, 'spam');
 		}
+        }
 	elsif($prog eq 'spamproxyd') {
 		if($text =~ /^\s*SPAM/ or $text =~ /^identified spam/) {
 			event($time, 'spam');
