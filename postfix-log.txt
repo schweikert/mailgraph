@@ -1,0 +1,31 @@
+**** receiving from remote ****
+
+Feb  6 00:22:26 ntardis postfix/smtpd[4672]:   3A452D963D: client=hormel.redhat.com[66.187.233.30]
+Feb  6 00:22:27 ntardis postfix/cleanup[4525]: 3A452D963D: message-id=<007601c3ec3e$1deaa3f0$1b01a8c0@richlap>
+Feb  6 00:22:27 ntardis postfix/qmgr[11862]:   3A452D963D: from=<redhat-list-admin@redhat.com>, size=5356, nrcpt=1 (queue active)
+Feb  6 00:22:27 ntardis postfix/lmtp[4716]:    3A452D963D: to=<cuche@vaw.baug.ethz.ch>, relay=127.0.0.1[127.0.0.1], delay=1, status=sent (250 2.6.0 Ok, id=04682-01-3, from MTA: 250 Ok: queued as D2FF7D9649)
+
+[amavis]
+
+Feb  6 00:22:27 ntardis postfix/smtpd[4591]:   D2FF7D9649: client=localhost[127.0.0.1]
+Feb  6 00:22:27 ntardis postfix/cleanup[4612]: D2FF7D9649: message-id=<007601c3ec3e$1deaa3f0$1b01a8c0@richlap>
+Feb  6 00:22:27 ntardis postfix/qmgr[11862]:   D2FF7D9649: from=<redhat-list-admin@redhat.com>, size=5790, nrcpt=
+Feb  6 00:22:28 ntardis postfix/local[4735]:   D2FF7D9649: to=<cuche@ee.ethz.ch>, orig_to=<cuche@vaw.baug.ethz.ch>, relay=local, delay=1, status=sent ("|/usr/bin/procmail -a "$EXTENSION"")
+
+**** sending from local, forward to remote ****
+
+Feb  6 17:01:50 ntardis postfix/pickup[10744]: D0B74D98D0: uid=0 from=<roya@ee.ethz.ch>
+Feb  6 17:01:50 ntardis postfix/cleanup[6168]: D0B74D98D0: message-id=<20040206160150.D0B74D98D0@ntardis.ee.ethz.ch>
+Feb  6 17:01:50 ntardis postfix/qmgr[11862]:   D0B74D98D0: from=<roya@ee.ethz.ch>, size=2894, nrcpt=1 (queue active)
+Feb  6 17:03:54 ntardis postfix/lmtp[13177]:   D0B74D98D0: to=<perelsc@ee.ethz.ch>, orig_to=<perelsc>, relay=127.0.0.1[127.0.0.1], delay=124, status=sent (250 2.6.0 Ok, id=13180-01-9, from MTA: 250 Ok: queued as 0A84FD94C4)
+
+[amavis]
+
+Feb  6 17:03:54 ntardis postfix/smtpd[13207]:  0A84FD94C4: client=localhost[127.0.0.1]
+Feb  6 17:03:54 ntardis postfix/cleanup[13164]:0A84FD94C4: message-id=<20040206160150.D0B74D98D0@ntardis.ee.ethz.ch>
+Feb  6 17:03:54 ntardis postfix/qmgr[11862]:   0A84FD94C4: from=<roya@ee.ethz.ch>, size=3318, nrcpt=1 (queue active)
+Feb  6 17:03:54 ntardis postfix/local[13077]:  0A84FD94C4: to=<perelsc@ee.ethz.ch>, relay=local, delay=0, status=sent (forwarded as 3EFADD941F)
+
+Feb  6 17:03:54 ntardis postfix/cleanup[13164]:3EFADD941F: message-id=<20040206160150.D0B74D98D0@ntardis.ee.ethz.ch>
+Feb  6 17:03:54 ntardis postfix/qmgr[11862]:   3EFADD941F: from=<roya@ee.ethz.ch>, size=3450, nrcpt=1 (queue active)
+Feb  6 17:04:04 ntardis postfix/smtp[1897]:    3EFADD941F: to=<david@bluemail.ch>, orig_to=<perelsc@ee.ethz.ch>, r

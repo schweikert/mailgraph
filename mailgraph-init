@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# $Id: mailgraph-init 2 2004-10-11 15:18:46Z dws $
+# example init script for mailgraph
+
+MAILGRAPH_PL=/usr/local/bin/mailgraph.pl
+MAIL_LOG=/var/log/syslog
+PID_FILE=/var/run/mailgraph.pid
+RRD_DIR=/var/lib
+
+case "$1" in
+'start')
+	echo "Starting mail statistics grapher: mailgraph";
+	$MAILGRAPH_PL -l $MAIL_LOG -d \
+		--daemon_pid=$PID_FILE --daemon_rrd=$RRD_DIR
+	;;
+
+'stop')
+	echo "Stopping mail statistics grapher: mailgraph";
+	if [ -f $PID_FILE ]; then
+		kill `cat $PID_FILE`
+		rm $PID_FILE
+	else
+		echo "mailgraph not running";
+	fi
+	;;
+
+*)
+	echo "Usage: $0 { start | stop }"
+	exit 1
+	;;
+
+esac
+exit 0

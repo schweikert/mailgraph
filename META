@@ -1,0 +1,14 @@
+policy      = 1.4
+name        = mailgraph
+type        = tool
+platform    = unix
+description = rrdtool frontend for mail statistics
+pod         = mailgraph.pl
+owner       = dws
+public      = yes
+
+*** install ***
+
+755 root:root	mailgraph.pl	ISGTC/bin
+
+*** depends ***
