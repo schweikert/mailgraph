@@ -107,6 +107,12 @@ sub main
 	$daemon_rrd_dir = $opt{daemon_rrd} if defined $opt{daemon_rrd};
 	$rrd		= $opt{rrd_name}.".rrd" if defined $opt{rrd_name};
 	$rrd_virus	= $opt{rrd_name}."_virus.rrd" if defined $opt{rrd_name};
+
+        if($opt{daemon} or $opt{daemon_rrd}) {
+            chdir $daemon_rrd_dir or die "mailgraph: can't chdir to $daemon_rrd_dir: $!";
+            -w $daemon_rrd_dir or die "mailgraph: can't write to $daemon_rrd_dir\n";
+        }
+
 	daemonize if $opt{daemon};
 
 	my $logfile = defined $opt{logfile} ? $opt{logfile} : '/var/log/syslog';
@@ -135,8 +141,6 @@ sub main
 
 sub daemonize()
 {
-	chdir $daemon_rrd_dir or die "mailgraph: can't chdir to $daemon_rrd_dir: $!";
-	-w $daemon_rrd_dir or die "mailgraph: can't write to $daemon_rrd_dir\n";
 	open STDIN, '/dev/null' or die "mailgraph: can't read /dev/null: $!";
 	if($opt{verbose}) {
 		open STDOUT, ">>$daemon_logfile"

@@ -1,6 +1,7 @@
 2005-01-24
 ----------
 * recognize postfix/error bounces
+* --daemon-rrd is now always respected (also without --daemon) 
 
 2004-11-04
 ----------
