@@ -7,7 +7,7 @@
 use RRDs;
 use POSIX qw(uname);
 
-my $VERSION = "1.10rc1";
+my $VERSION = "1.10";
 
 my $host = (POSIX::uname())[1];
 my $scriptname = 'mailgraph.cgi';

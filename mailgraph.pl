@@ -316,7 +316,9 @@ sub process_line($)
 		#	}
 		#}
 		elsif($text =~ /^\([0-9-]+\) (Passed |Blocked )?INFECTED\b/) {
-			event($time, 'virus');# Passed|Blocked inserted since 2004xxxx
+			if($text !~ /\btag2=/) { # ignore new per-recipient log entry (2.2.0)
+				event($time, 'virus');# Passed|Blocked inserted since 2004xxxx
+			}
 		}
 #		elsif($text =~ /^\([0-9-]+\) (Passed |Blocked )?BANNED\b/) {
 #		       event($time, 'banned');# Passed|Blocked inserted since 2004xxxx
