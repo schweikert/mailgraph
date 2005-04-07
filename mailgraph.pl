@@ -483,6 +483,22 @@ B<mailgraph> [I<options>...]
 This script does parse syslog and updates the RRD database (mailgraph.rrd) in
 the current directory.
 
+=head2 Log-Types
+
+The following types can be given to --logtype:
+
+=over 10
+
+=item syslog
+
+Traditional "syslog" (default)
+
+=item metalog
+
+Metalog (see http://metalog.sourceforge.net/)
+
+=back
+
 =head1 COPYRIGHT
 
 Copyright (c) 2004 by ETH Zurich. All rights reserved.

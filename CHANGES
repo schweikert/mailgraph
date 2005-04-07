@@ -1,3 +1,7 @@
+2005-04-07
+----------
+* document the --logtypes
+
 2005-01-24
 ----------
 * recognize postfix/error bounces
@@ -9,6 +13,7 @@
 
 2004-10-21
 ----------
+* released version 1.10
 * dspam support (Nagilum)
 * change CGI to use parameters instead of PATH_INFO, which not all web-servers support
 
