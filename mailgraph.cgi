@@ -41,6 +41,8 @@ sub graph($$$)
 	my $file = shift;
 	my $title = shift;
 	my $step = $range*$points_per_sample/$xpoints;
+	my $date = localtime(time);
+	$date =~ s|:|\\:|g if $RRDs::VERSION >= 1.199908;
 
 	my ($graphret,$xs,$ys) = RRDs::graph($file,
 		'--imgformat', 'PNG',
@@ -77,8 +79,7 @@ sub graph($$$)
 		'GPRINT:srecv:MAX:total\: %8.0lf msgs',
 		'GPRINT:rrecv:AVERAGE:avg\: %5.2lf msgs/min',
 		'GPRINT:rmrecv:MAX:max\: %4.0lf msgs/min',
-
-		'COMMENT:['.localtime(time).']\l',
+		'COMMENT:['.$date.']\l',
 	);
 	my $ERR=RRDs::error;
 	die "ERROR: $ERR\n" if $ERR;
@@ -90,6 +91,8 @@ sub graph_err($$$)
 	my $file = shift;
 	my $title = shift;
 	my $step = $range*$points_per_sample/$xpoints;
+	my $date = localtime(time);
+	$date =~ s|:|\\:|g if $RRDs::VERSION >= 1.199908;
 
 	my ($graphret,$xs,$ys) = RRDs::graph($file,
 		'--imgformat', 'PNG',
@@ -148,7 +151,7 @@ sub graph_err($$$)
 		'GPRINT:rspam:AVERAGE:avg\: %5.2lf msgs/min',
 		'GPRINT:rmspam:MAX:max\: %4.0lf msgs/min',
 
-		'COMMENT:['.localtime(time).']\l',
+		'COMMENT:['.$date.']\l',
 	);
 	my $ERR=RRDs::error;
 	die "ERROR: $ERR\n" if $ERR;
