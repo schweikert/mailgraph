@@ -1,7 +1,14 @@
 #!/bin/sh
 
-# $Id: mailgraph-init 3 2004-10-21 12:17:54Z dws $
+# $Id: mailgraph-init 10 2005-06-05 20:27:14Z dws $
 # example init script for mailgraph
+#
+# chkconfig: 2345 82 28
+# description: mailgraph postfix log grapher.
+#
+# processname: mailgraph.pl
+# pidfile: /var/run/mailgraph.pid
+
 
 MAILGRAPH_PL=/usr/local/bin/mailgraph.pl
 MAIL_LOG=/var/log/syslog

@@ -11,8 +11,8 @@ and bounced/rejected mail (SMTP traffic).
 Get it from:
 
 
-         http://people.ee.ethz.ch/~dws/software/mailgraph/
-	 =================================================
+         http://people.ee.ethz.ch/dws/software/mailgraph/
+	 ================================================
 
 
 Required Modules
@@ -73,6 +73,9 @@ Installation
 
 See the file mailgraph-init for an example init script that you can use to
 start mailgraph at system boot.
+
+You need to put mailgraph.cgi on somewhere accessible though a web-server, it
+needs to be executeable and the web-server needs to execute it as a CGI.
 
 
 License

@@ -1,8 +1,8 @@
 #!/usr/sepp/bin/perl -w
 ### ISGTC {
 BEGIN {
-    $::ISGTC_MAGIC_LIBDIR        = '/usr/isgtc/lib';
-    unshift @INC, "$::ISGTC_MAGIC_LIBDIR/perl";
+	$::ISGTC_MAGIC_LIBDIR = '/usr/isgtc/lib';
+	unshift @INC, "$::ISGTC_MAGIC_LIBDIR/perl";
 }
 use lib '/usr/pack/rrdtool-1.0.49-to/lib/perl';
 use Parse::Syslog;
@@ -81,6 +81,7 @@ sub usage
 	print "  --only-virus-rrd   update only the virus rrd\n";
 	print "  --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files\n";
 	print "  --rbl-is-spam      count rbl rejects as spam\n";
+	print "  --virbl-is-virus   count virbl rejects as viruses\n";
 
 	exit;
 }
@@ -93,7 +94,7 @@ sub main
 		'daemon_pid|daemon-pid=s', 'daemon_rrd|daemon-rrd=s',
 		'daemon_log|daemon-log=s', 'ignore-localhost!', 'ignore-host=s',
 		'only-mail-rrd', 'only-virus-rrd', 'rrd_name|rrd-name=s',
-		'rbl-is-spam'
+		'rbl-is-spam', 'virbl-is-virus'
 		) or exit(1);
 	usage if $opt{help};
 
@@ -108,10 +109,10 @@ sub main
 	$rrd		= $opt{rrd_name}.".rrd" if defined $opt{rrd_name};
 	$rrd_virus	= $opt{rrd_name}."_virus.rrd" if defined $opt{rrd_name};
 
-        if($opt{daemon} or $opt{daemon_rrd}) {
-            chdir $daemon_rrd_dir or die "mailgraph: can't chdir to $daemon_rrd_dir: $!";
-            -w $daemon_rrd_dir or die "mailgraph: can't write to $daemon_rrd_dir\n";
-        }
+	if($opt{daemon} or $opt{daemon_rrd}) {
+		chdir $daemon_rrd_dir or die "mailgraph: can't chdir to $daemon_rrd_dir: $!";
+		-w $daemon_rrd_dir or die "mailgraph: can't write to $daemon_rrd_dir\n";
+	}
 
 	daemonize if $opt{daemon};
 
@@ -176,7 +177,7 @@ sub init_rrd($)
 	my $year_steps = $month_steps*12;
 
 	# mail rrd
- 	if(! -f $rrd and ! $opt{'only-virus-rrd'}) {
+	if(! -f $rrd and ! $opt{'only-virus-rrd'}) {
 		RRDs::create($rrd, '--start', $m, '--step', $rrdstep,
 				'DS:sent:ABSOLUTE:'.($rrdstep*2).':0:U',
 				'DS:recv:ABSOLUTE:'.($rrdstep*2).':0:U',
@@ -254,7 +255,10 @@ sub process_line($)
 					$client =~ /$opt{'ignore-host'}/oi;
 				event($time, 'received');
 			}
-			elsif($opt{'rbl-is-spam'} and $text =~ /^(?:[0-9A-F]+: |NOQUEUE: )?reject: .*: 554.* blocked using/) {
+			elsif($opt{'virbl-is-virus'} and $text =~ /^(?:[0-9A-F]+: |NOQUEUE: )?reject: .*: 554.* blocked using irbl.dnsbl.bit.nl/) {
+				event($time, 'virus');
+			}
+			elsif($opt{'rbl-is-spam'} and $text    =~ /^(?:[0-9A-F]+: |NOQUEUE: )?reject: .*: 554.* blocked using/) {
 				event($time, 'spam');
 			}
 			elsif($text =~ /^(?:[0-9A-F]+: |NOQUEUE: )?reject: /) {
@@ -262,10 +266,10 @@ sub process_line($)
 			}
 		}
 		elsif($prog eq 'error') {
-                        if($text =~ /\bstatus=bounced\b/) {
-                                event($time, 'bounced');
-                        }
-                }
+			if($text =~ /\bstatus=bounced\b/) {
+				event($time, 'bounced');
+			}
+		}
 		elsif($prog eq 'cleanup') {
 			if($text =~ /^[0-9A-F]+: (?:reject|discard): /) {
 				event($time, 'rejected');
@@ -288,8 +292,10 @@ sub process_line($)
 		elsif($text =~ /\bruleset=check_rcpt\b/ ) {
 			event($time, 'rejected');
 		}
-		elsif($text =~ /\bruleset=check_rcpt\b/ ) {
-			if ($opt{'rbl-is-spam'}) {
+		elsif($text =~ /\bruleset=check_relay\b/ ) {
+			if (($opt{'virbl-is-virus'}) and ($text =~ /\bivirbl\b/ )) {
+				event($time, 'virus');
+			} elsif ($opt{'rbl-is-spam'}) {
 				event($time, 'spam');
 			} else {
 				event($time, 'rejected');
@@ -308,7 +314,10 @@ sub process_line($)
 			event($time, 'reject');
 		}
 		elsif($text =~ /\bUser unknown$/i ) {
-			event($time, 'bounce');
+			event($time, 'bounced');
+		}
+		elsif($text =~ /\bMilter:.*\breject=55/ ) {
+			event($time, 'reject');
 		}
 	}
 	elsif($prog eq 'amavis' || $prog eq 'amavisd') {
@@ -329,9 +338,11 @@ sub process_line($)
 				event($time, 'virus');# Passed|Blocked inserted since 2004xxxx
 			}
 		}
-#		elsif($text =~ /^\([0-9-]+\) (Passed |Blocked )?BANNED\b/) {
-#		       event($time, 'banned');# Passed|Blocked inserted since 2004xxxx
-#		}
+		elsif($text =~ /^\([0-9-]+\) (Passed |Blocked )?BANNED\b/) {
+			if($text !~ /\btag2=/) {
+			       event($time, 'virus');
+			}
+		}
 #		elsif($text =~ /^\([0-9-]+\) Passed|Blocked BAD-HEADER\b/) {
 #		       event($time, 'badh');
 #		}
@@ -369,7 +380,7 @@ sub process_line($)
 		if($text =~ /spam detected from/) {
 			event($time, 'spam');
 		}
-        }
+	}
 	elsif($prog eq 'spamproxyd') {
 		if($text =~ /^\s*SPAM/ or $text =~ /^identified spam/) {
 			event($time, 'spam');
@@ -402,9 +413,38 @@ sub process_line($)
 			event($time, 'bounced');
 		}
 	}
+	elsif($prog eq 'clamsmtpd') {
+		if($text =~ /status=VIRUS/) {
+			event($time, 'virus');
+		}
+	}
 	elsif($prog eq 'clamav-milter') {
 		if($text =~ /Intercepted/) {
 			event($time, 'virus');
+		}
+	}
+	elsif ($prog eq 'smtp-vilter') {
+		if ($text =~ /clamd: found/) {
+			event($time, 'virus');
+		}
+	}
+	elsif($prog eq 'avmilter') {
+		# AntiVir Milter
+		if($text =~ /^Alert!/) {
+			event($time, 'virus');
+		}
+		elsif($text =~ /blocked\.$/) {
+			event($time, 'virus');
+		}
+	}
+	elsif($prog eq 'bogofilter') {
+		if($text =~ /Spam/) {
+			event($time, 'spam');
+		}
+	}
+	elsif($prog eq 'filter-module') {
+		if($text =~ /\bspam_status\=yes/) {
+			event($time, 'spam');
 		}
 	}
 }
@@ -477,6 +517,7 @@ B<mailgraph> [I<options>...]
  --only-virus-rrd   update only the virus rrd
  --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files
  --rbl-is-spam      count rbl rejects as spam
+ --virbl-is-virus   count virbl rejects as viruses
 
 =head1 DESCRIPTION
 
@@ -530,13 +571,4 @@ S<David Schweikert E<lt>dws@ee.ethz.chE<gt>>
 
 =cut
 
-# Emacs Configuration
-#
-# Local Variables:
-# mode: cperl
-# eval: (cperl-set-style "PerlStyle")
-# mode: flyspell
-# mode: flyspell-prog
-# End:
-#
-# vi: sw=4 et
+# vi: sw=8

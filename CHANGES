@@ -1,3 +1,15 @@
+2005-06-05
+----------
+* add support for clamsmtpd (Aaron Wolfe)
+* add support for AVMilter (Stephan A. Klein)
+* add chkconfig to init script (DanielC)
+* add support for bogofilter (Erwan David)
+* add support for Kaspersky anti SPAM (Igor Moskovko)
+* add --virbl-is-spam (Cyriel de Grijs)
+* detect as virus mails blocked by amavis by file-extension
+* sendmail fixes (Alexander Bochmann)
+* compatibility with RRDtool 1.2.x
+
 2005-04-07
 ----------
 * document the --logtypes
@@ -111,28 +123,28 @@
 * release 1.1
 * added example init script mailgraph-init
 * implemented --daemon option
-* implemented --verbose option (rossen@webhydra.com)
-* support for BlackHole antivirus (rene@ademn.com)
-* support delivery through 'pipe' for Cyrus (rossen@webhydra.com)
-* support AMaViS 0.3.12pre8 (MAnderson@iddx.net)
+* implemented --verbose option (rossen)
+* support for BlackHole antivirus (rene)
+* support delivery through 'pipe' for Cyrus (rossen)
+* support AMaViS 0.3.12pre8 (MAnderson)
 
 2002-12-16
 ----------
 * release 1.0
 * better contrast in error graph, easily changeable colors
-* support for newest amavisd-new (bpratt@overflow.net.au and
-  Ralf.Hildebrandt@charite.de)
-* support for AntiVir MailGate (paulb@blazebox.homeip.net)
-* support for Postfix cleanup-DISCARD of newer versions (roland@arendes.de)
+* support for newest amavisd-new (bpratt and
+  Ralf.Hildebrandt)
+* support for AntiVir MailGate (paulb)
+* support for Postfix cleanup-DISCARD of newer versions (roland)
 * support for DrWeb Antivirus
 
 2002-11-29
 ----------
-* Postfix 1.1.11 reports the queue also for rejects (Ralf.Hildebrandt@charite.de)
+* Postfix 1.1.11 reports the queue also for rejects (Ralf.Hildebrandt)
 
 2002-11-19
 ----------
-* support for SpamAssassin with Amavis (Ralf.Hildebrandt@charite.de)
+* support for SpamAssassin with Amavis (Ralf.Hildebrandt)
 
 2002-11-14
 ----------
@@ -148,20 +160,20 @@
 2002-09-24
 ----------
 * release 0.22
-* support for amavisd builtin spamassassin (erich@debian.org)
-* do not count mail from/to localhost (erich@debian.org)
-* show averages in graphs (erich@debian.org)
-* stacked error graph with nice colors (erich@debian.org)
+* support for amavisd builtin spamassassin (erich)
+* do not count mail from/to localhost (erich)
+* show averages in graphs (erich)
+* stacked error graph with nice colors (erich)
 
 2002-08-29
 ----------
-* support for Vexira antivirus (admin@wexoe.dk)
-* support for Avcheck antivirus (sdesse@euresys.fr)
+* support for Vexira antivirus (admin_at_wexoe.dk)
+* support for Avcheck antivirus (sdesse)
 
 2002-08-13
 ----------
 * release 0.21
-* recognize spam detected by spamproxyd (dsalbego@anl.gov)
+* recognize spam detected by spamproxyd (dsalbego)
 
 2002-07-05
 ----------
@@ -172,8 +184,7 @@
 ----------
 * release 0.20
 * added statistics for Viruses (amavisd) and SPAM (spamassassin with spamd)
-* recognize also bounces based on header_checks and body_checks
-  (Roland Arendes <roland@arendes.de>)
+* recognize also bounces based on header_checks and body_checks (Roland Arendes)
 
 2002-04-03
 ----------
@@ -190,7 +201,7 @@
 
 2001-12-03
 ----------
-* run mailgraph.cgi in tainted mode (Anders Nordby <anders@fix.no>)
+* run mailgraph.cgi in tainted mode (Anders Nordby)
 
 2001-11-07
 ----------
@@ -202,7 +213,7 @@
 ----------
 * release 0.16
 * fix wrong label in graph (msg/hour -> msgs/min !), reported by
-  S. William Schulz <swschulz@astrum.net>
+  S. William Schulz
 
 2001-08-24
 ----------
@@ -240,8 +251,7 @@
 2001-05-10
 ----------
 * release 0.10
-* report also bounces produced by postfix/smtp (bug reported by
-  nomad4@hushmail.com)
+* report also bounces produced by postfix/smtp (bug reported by nomad4)
 
 2001-01-22
 ----------
@@ -251,14 +261,13 @@
 ----------
 * release 0.9
 * improved "received" regular expression (didn't always match)
-  bug reported by Adrian P. van Bloois <adrian@accu.uu.nl>
+  bug reported by Adrian P. van Bloois
 
 2001-01-07
 ----------
 * release 0.8
 * fix syslog-date parsing bug (January). Reported by 
-  Piotr Wasilewski <admin@css.pl>, Leif Nixon <nixon@softlab.ericsson.se>
-  and Jeje <jeje@jeje.org>
+  Piotr Wasilewski, Leif Nixon, and Jeje
 
 2000-12-13
 ----------
