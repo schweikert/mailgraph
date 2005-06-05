@@ -1,0 +1,43 @@
+This is a regular mail process:
+
+2005-02-11 11:44:33 1CzYHn-0008AJ-7F <= mail@yourdomain.it H=(yourhost.yourdomain.it) [1.1.1.1] P=esmtp S=1795 id=EE56D5800BFBA14AAB0E79D4777F27DB06B29F@yourhost.yourdomain.it
+2005-02-11 11:44:35 1CzYHn-0008AJ-7F => mymail@mydomain.it R=posta_internet T=remote_smtp H=mail.mydomain.it [2.2.2.2]
+2005-02-11 11:44:35 1CzYHn-0008AJ-7F Completed
+
+Rejected email at helo time:
+
+2005-02-11 11:41:38 H=(yourhost.yourdomain.it) [1.1.1.1] rejected EHLO or HELO mydomain.it: HELO/EHLO my.domain
+2005-02-11 11:36:56 H=(yourhost) [1.1.1.] rejected EHLO or HELO yourhost: SPAM HELO/EHLO without a period
+
+Rejected email at rcpt time:
+
+2005-02-11 05:04:13 H=(yourhost.yourdomain.it) [1.1.1.1] F=<mail@yourdomain.it> rejected RCPT <mymail@mydomain.it>: host is listed in sbl-xbl.spamhaus.org
+2005-02-10 16:23:59 H=(yourhost.yourdomain.it) [1.1.1.1] F=<mail@yourdomain.it> rejected RCPT <mymail@mydomain.it>: Sender verify failed
+
+
+Rejected email at data time:
+
+2005-02-10 16:14:02 1CzG0m-0005lw-HU H=(yourhost.yourdomain.it) [1.1.1.1] F=<mail@yourdomain.it> rejected after DATA: MALWARE (Worm.SomeFool.P)
+
+Rejected email at mime time:
+
+2005-02-10 16:36:54 1CzGNB-0005qA-Dc H=(yourhost.yourdomain.it) [1.1.1.1] F=<mail@yourdomain.it> rejected during MIME ACL checks: BAD_ATTACHMENT: (.)
+
+Retry time not reached:
+
+2005-02-11 11:45:52 1CzR4a-0006zu-W0 == root@mail.mydomain.it R=posta_internet T=remote_smtp defer (-53): retry time not reached for any host
+
+Queue run:
+
+2005-02-11 11:45:52 End queue run: pid=31402
+2005-02-11 11:45:51 Start queue run: pid=31402
+
+Some errors:
+
+2005-02-10 16:13:24 unexpected disconnection while reading SMTP command from (sic.coop.it) [81.73.84.33]
+2005-02-10 16:14:46 1CzG1k-0005m0-4I ** mymail@mydomain.it: Too many "Received" headers - suspected mail loop
+
+Spamassassin email:
+
+2005-01-16 01:50:03 1CpycD-00086W-VZ H=(yourhost.yourdomain.it) [1.1.1.1] Warning: SPAM (7.6)	(this one forwarded to a dedicated mailbox)
+2005-02-10 16:45:51 1CzGVn-0002aS-Ee H=(yourhost.yourdomain.it) [1.1.1.1] F=<mail@yourdomain.it> rejected after DATA: SPAM: (1001.2) (this one rejected at smtp time)
