@@ -9,7 +9,7 @@ use Parse::Syslog;
 ### ISGTC }
 
 # mailgraph -- an rrdtool frontend for mail statistics
-# copyright (c) 2000-2004 David Schweikert <dws@ee.ethz.ch>
+# copyright (c) 2000-2005 David Schweikert <dws@ee.ethz.ch>
 # released under the GNU General Public License
 
 ## EMBED(../Parse_Syslog/lib/Parse/Syslog.pm)
@@ -542,7 +542,7 @@ Metalog (see http://metalog.sourceforge.net/)
 
 =head1 COPYRIGHT
 
-Copyright (c) 2004 by ETH Zurich. All rights reserved.
+Copyright (c) 2004-2005 by ETH Zurich. All rights reserved.
 
 =head1 LICENSE
 

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 # mailgraph -- a postfix statistics rrdtool frontend
-# copyright (c) 2000-2004 David Schweikert <dws@ee.ethz.ch>
+# copyright (c) 2000-2005 David Schweikert <dws@ee.ethz.ch>
 # released under the GNU General Public License
 
 use RRDs;
@@ -18,6 +18,7 @@ my $ypoints_err = 96;
 my $rrd = 'mailgraph.rrd'; # path to where the RRD database is
 my $rrd_virus = 'mailgraph_virus.rrd'; # path to where the Virus RRD database is
 my $tmp_dir = '/tmp/mailgraph'; # temporary directory where to store the images
+my $rrdtool_1_0 = ($RRDs::VERSION < 1.199908);
 
 my @graphs = (
 	{ title => 'Day Graphs',   seconds => 3600*24,        },
@@ -42,7 +43,7 @@ sub graph($$$)
 	my $title = shift;
 	my $step = $range*$points_per_sample/$xpoints;
 	my $date = localtime(time);
-	$date =~ s|:|\\:|g if $RRDs::VERSION >= 1.199908;
+	$date =~ s|:|\\:|g unless $rrdtool_1_0;
 
 	my ($graphret,$xs,$ys) = RRDs::graph($file,
 		'--imgformat', 'PNG',
@@ -57,6 +58,10 @@ sub graph($$$)
 		'--color', 'SHADEB#ffffff',
 		'--color', 'BACK#ffffff',
 
+		$rrdtool_1_0 ? () : (
+			'--slope-mode'
+		),
+
 		"DEF:sent=$rrd:sent:AVERAGE",
 		"DEF:msent=$rrd:sent:MAX",
 		"CDEF:rsent=sent,60,*",
@@ -68,7 +73,6 @@ sub graph($$$)
 		'GPRINT:rsent:AVERAGE:avg\: %5.2lf msgs/min',
 		'GPRINT:rmsent:MAX:max\: %4.0lf msgs/min\l',
 
-
 		"DEF:recv=$rrd:recv:AVERAGE",
 		"DEF:mrecv=$rrd:recv:MAX",
 		"CDEF:rrecv=recv,60,*",
@@ -79,7 +83,8 @@ sub graph($$$)
 		'GPRINT:srecv:MAX:total\: %8.0lf msgs',
 		'GPRINT:rrecv:AVERAGE:avg\: %5.2lf msgs/min',
 		'GPRINT:rmrecv:MAX:max\: %4.0lf msgs/min',
-		'COMMENT:['.$date.']\l',
+		'COMMENT:\n',
+		'COMMENT:['.$date.']\r',
 	);
 	my $ERR=RRDs::error;
 	die "ERROR: $ERR\n" if $ERR;
@@ -92,7 +97,7 @@ sub graph_err($$$)
 	my $title = shift;
 	my $step = $range*$points_per_sample/$xpoints;
 	my $date = localtime(time);
-	$date =~ s|:|\\:|g if $RRDs::VERSION >= 1.199908;
+	$date =~ s|:|\\:|g unless $rrdtool_1_0;
 
 	my ($graphret,$xs,$ys) = RRDs::graph($file,
 		'--imgformat', 'PNG',
@@ -106,6 +111,10 @@ sub graph_err($$$)
 		'--color', 'SHADEA#ffffff',
 		'--color', 'SHADEB#ffffff',
 		'--color', 'BACK#ffffff',
+
+		$rrdtool_1_0 ? () : (
+			'--slope-mode',
+		),
 
 		"DEF:rejected=$rrd:rejected:AVERAGE",
 		"DEF:mrejected=$rrd:rejected:MAX",
@@ -151,7 +160,8 @@ sub graph_err($$$)
 		'GPRINT:rspam:AVERAGE:avg\: %5.2lf msgs/min',
 		'GPRINT:rmspam:MAX:max\: %4.0lf msgs/min',
 
-		'COMMENT:['.$date.']\l',
+		'COMMENT:\n',
+		'COMMENT:['.$date.']\r',
 	);
 	my $ERR=RRDs::error;
 	die "ERROR: $ERR\n" if $ERR;
