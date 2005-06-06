@@ -26,7 +26,7 @@ use Getopt::Long;
 use POSIX 'setsid';
 use Parse::Syslog;
 
-my $VERSION = 0.14;
+my $VERSION = 1.12;
 
 # config
 my $rrdstep = 60;
