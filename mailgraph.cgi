@@ -82,8 +82,8 @@ sub graph($$$)
 		"LINE2:rrecv#$color{received}:Received",
 		'GPRINT:srecv:MAX:total\: %8.0lf msgs',
 		'GPRINT:rrecv:AVERAGE:avg\: %5.2lf msgs/min',
-		'GPRINT:rmrecv:MAX:max\: %4.0lf msgs/min',
-		'COMMENT:\n',
+		'GPRINT:rmrecv:MAX:max\: %4.0lf msgs/min\l',
+
 		'COMMENT:['.$date.']\r',
 	);
 	my $ERR=RRDs::error;
@@ -158,9 +158,8 @@ sub graph_err($$$)
 		"STACK:rspam#$color{spam}:Spam    ",
 		'GPRINT:sspam:MAX:total\: %8.0lf msgs',
 		'GPRINT:rspam:AVERAGE:avg\: %5.2lf msgs/min',
-		'GPRINT:rmspam:MAX:max\: %4.0lf msgs/min',
+		'GPRINT:rmspam:MAX:max\: %4.0lf msgs/min\l',
 
-		'COMMENT:\n',
 		'COMMENT:['.$date.']\r',
 	);
 	my $ERR=RRDs::error;
