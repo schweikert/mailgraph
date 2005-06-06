@@ -1,5 +1,6 @@
 2005-06-05
 ----------
+* released version 1.11
 * add support for clamsmtpd (Aaron Wolfe)
 * add support for AVMilter (Stephan A. Klein)
 * add chkconfig to init script (DanielC)
