@@ -308,16 +308,16 @@ sub process_line($)
 			event($time, 'rejected');
 		}
 		elsif($text =~ /\brecipient denied\b/ ) {
-			event($time, 'reject');
+			event($time, 'rejected');
 		}
 		elsif($text =~ /\brecipient unknown\b/ ) {
-			event($time, 'reject');
+			event($time, 'rejected');
 		}
 		elsif($text =~ /\bUser unknown$/i ) {
 			event($time, 'bounced');
 		}
 		elsif($text =~ /\bMilter:.*\breject=55/ ) {
-			event($time, 'reject');
+			event($time, 'rejected');
 		}
 	}
 	elsif($prog eq 'amavis' || $prog eq 'amavisd') {
