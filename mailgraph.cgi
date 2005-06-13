@@ -42,6 +42,8 @@ sub graph($$$)
 	my $file = shift;
 	my $title = shift;
 	my $step = $range*$points_per_sample/$xpoints;
+	# choose carefully the end otherwise rrd will maybe pick the wrong RRA:
+	my $end  = time; $end -= $end % $step;
 	my $date = localtime(time);
 	$date =~ s|:|\\:|g unless $rrdtool_1_0;
 
@@ -50,6 +52,7 @@ sub graph($$$)
 		'--width', $xpoints,
 		'--height', $ypoints,
 		'--start', "-$range",
+		'--end', $end,
 		'--vertical-label', 'msgs/min',
 		'--lower-limit', 0,
 		'--units-exponent', 0, # don't show milli-messages/s
@@ -96,6 +99,8 @@ sub graph_err($$$)
 	my $file = shift;
 	my $title = shift;
 	my $step = $range*$points_per_sample/$xpoints;
+	# choose carefully the end otherwise rrd will maybe pick the wrong RRA:
+	my $end  = time; $end -= $end % $step;
 	my $date = localtime(time);
 	$date =~ s|:|\\:|g unless $rrdtool_1_0;
 
@@ -104,6 +109,7 @@ sub graph_err($$$)
 		'--width', $xpoints,
 		'--height', $ypoints_err,
 		'--start', "-$range",
+		'--end', $end,
 		'--vertical-label', 'msgs/min',
 		'--lower-limit', 0,
 		'--units-exponent', 0, # don't show milli-messages/s

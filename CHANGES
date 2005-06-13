@@ -1,6 +1,7 @@
 2005-06-09
 ----------
 * sendmail fixes (Immo Goltz)
+* ensure that the correct RRA is always chosen
 
 2005-06-05
 ----------
