@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# $Id: mailgraph-init 10 2005-06-05 20:27:14Z dws $
+# $Id: mailgraph-init 19 2005-06-13 11:23:22Z dws $
 # example init script for mailgraph
 #
 # chkconfig: 2345 82 28
@@ -10,6 +10,7 @@
 # pidfile: /var/run/mailgraph.pid
 
 
+PATH=/bin:/usr/bin
 MAILGRAPH_PL=/usr/local/bin/mailgraph.pl
 MAIL_LOG=/var/log/syslog
 PID_FILE=/var/run/mailgraph.pid
@@ -18,7 +19,7 @@ RRD_DIR=/var/lib
 case "$1" in
 'start')
 	echo "Starting mail statistics grapher: mailgraph";
-	$MAILGRAPH_PL -l $MAIL_LOG -d \
+	nice -19 $MAILGRAPH_PL -l $MAIL_LOG -d \
 		--daemon-pid=$PID_FILE --daemon-rrd=$RRD_DIR
 	;;
 
