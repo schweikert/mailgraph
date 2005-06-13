@@ -2,6 +2,7 @@
 ----------
 * sendmail fixes (Immo Goltz)
 * ensure that the correct RRA is always chosen
+* nice -19 for mailgraph.pl in example init script (Alexander Norman)
 
 2005-06-05
 ----------
