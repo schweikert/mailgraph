@@ -351,9 +351,19 @@ sub process_line($)
 		}
 	}
 	elsif($prog eq 'vagatefwd') {
-		# Vexira antivirus
+		# Vexira antivirus (old)
 		if($text =~ /^VIRUS/) {
 			event($time, 'virus');
+		}
+	}
+	elsif($prog eq 'hook') {
+		# Vexira antivirus
+		if($text =~ /^\*+ Virus\b/) {
+			event($time, 'virus');
+		}
+		# Vexira antispam
+		if($text =~ /\bcontains spam\b/) {
+			event($time, 'spam');
 		}
 	}
 	elsif($prog eq 'avgatefwd') {
