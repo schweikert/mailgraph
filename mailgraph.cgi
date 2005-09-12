@@ -8,11 +8,6 @@ use RRDs;
 use POSIX qw(uname);
 use Fcntl qw(:flock);
 
-	print "\n";
-	print $RRDs::VERSION;
-exit;
-	
-
 my $VERSION = "1.12pre1";
 
 my $host = (POSIX::uname())[1];
