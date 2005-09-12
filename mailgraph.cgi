@@ -46,7 +46,7 @@ sub rrd_graph(@)
 	$date =~ s|:|\\:|g unless $RRDs::VERSION < 1.199908;
 
 	# lock for writing
-	open(LOCK, ">", "$file.lock") or die "ERROR: can't write lockfile: $file.lock\n";
+	open(LOCK, ">>", "$file.lock") or die "ERROR: can't write lockfile: $file.lock\n";
 	flock(LOCK, LOCK_EX);
 
 	my ($graphret,$xs,$ys) = RRDs::graph($file,
