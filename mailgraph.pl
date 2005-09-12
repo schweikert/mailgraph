@@ -280,9 +280,15 @@ sub process_line($)
 		if($text =~ /\bmailer=local\b/ ) {
 			event($time, 'received');
 		}
+                elsif($text =~ /\bmailer=relay\b/) {
+                        event($time, 'received');
+                }
 		elsif($text =~ /\bstat=Sent\b/ ) {
 			event($time, 'sent');
 		}
+                elsif($text =~ /\bmailer=esmtp\b/ ) {
+                        event($time, 'sent');
+                }
 		elsif($text =~ /\bruleset=check_XS4ALL\b/ ) {
 			event($time, 'rejected');
 		}
@@ -292,6 +298,9 @@ sub process_line($)
 		elsif($text =~ /\bruleset=check_rcpt\b/ ) {
 			event($time, 'rejected');
 		}
+                elsif($text =~ /\bstat=virus\b/ ) {
+                        event($time, 'virus');
+                }
 		elsif($text =~ /\bruleset=check_relay\b/ ) {
 			if (($opt{'virbl-is-virus'}) and ($text =~ /\bivirbl\b/ )) {
 				event($time, 'virus');
