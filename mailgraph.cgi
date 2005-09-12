@@ -199,14 +199,14 @@ sub send_image($)
 {
 	my ($file)= @_;
 
-	# lock for reading
-	open(LOCK, ">", "$file.lock") or die "ERROR: can't write lockfile: $file.lock\n";
-	flock(LOCK, LOCK_SH);
-	
 	-r $file or do {
 		print "Content-type: text/plain\n\nERROR: can't find $file\n";
 		exit 1;
 	};
+
+	# lock for reading
+	open(LOCK, "<", "$file.lock") or die "ERROR: can't open lockfile: $file.lock\n";
+	flock(LOCK, LOCK_SH);
 
 	print "Content-type: image/png\n";
 	print "Content-length: ".((stat($file))[7])."\n";
