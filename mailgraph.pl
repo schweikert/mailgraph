@@ -391,7 +391,7 @@ sub process_line($)
 		}
 	}
 	elsif($prog eq 'spamd') {
-		if($text =~ /^identified spam/) {
+		if($text =~ /^(?:spamd: )?identified spam/) {
 			event($time, 'spam');
 		}
 	}
