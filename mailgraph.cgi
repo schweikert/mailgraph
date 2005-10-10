@@ -6,7 +6,6 @@
 
 use RRDs;
 use POSIX qw(uname);
-use Fcntl qw(:flock);
 
 my $VERSION = "1.12pre1";
 
@@ -45,10 +44,6 @@ sub rrd_graph(@)
 	my $date = localtime(time);
 	$date =~ s|:|\\:|g unless $RRDs::VERSION < 1.199908;
 
-	# lock for writing
-	open(LOCK, ">>", "$file.lock") or die "ERROR: can't write lockfile: $file.lock\n";
-	flock(LOCK, LOCK_EX);
-
 	my ($graphret,$xs,$ys) = RRDs::graph($file,
 		'--imgformat', 'PNG',
 		'--width', $xpoints,
@@ -74,9 +69,6 @@ sub rrd_graph(@)
 
 	my $ERR=RRDs::error;
 	die "ERROR: $ERR\n" if $ERR;
-
-	# unlock
-	close(LOCK);
 }
 
 sub graph($$)
@@ -204,19 +196,12 @@ sub send_image($)
 		exit 1;
 	};
 
-	# lock for reading
-	open(LOCK, "<", "$file.lock") or die "ERROR: can't open lockfile: $file.lock\n";
-	flock(LOCK, LOCK_SH);
-
 	print "Content-type: image/png\n";
 	print "Content-length: ".((stat($file))[7])."\n";
 	print "\n";
 	open(IMG, $file) or die;
 	my $data;
-	print $data while read IMG, $data, 1024;
-
-	# unlock
-	close(LOCK);
+	print $data while sysread(IMG, $data, 16384)>0;
 }
 
 sub main()

@@ -3,7 +3,7 @@
 * bugfix race condition in mailgraph.cgi (Ralf Hildebrandt)
 * sendmail fixes (Ben Lentz, R. Scott Baer)
 * compatibility with rrdtool 1.2.0 and 1.2.1 (no --slope-mode)
-* compatibility with SpamAssassin 3.1.0
+* compatibility with SpamAssassin 3.1.0 (Matias Lopez Bergero)
 
 2005-08-15
 ----------
