@@ -1,6 +1,6 @@
-2005-09-12
+2005-10-16
 ----------
-* bugfix race condition in mailgraph.cgi (Ralf Hildebrandt)
+* released version 1.12
 * sendmail fixes (Ben Lentz, R. Scott Baer)
 * compatibility with rrdtool 1.2.0 and 1.2.1 (no --slope-mode)
 * compatibility with SpamAssassin 3.1.0 (Matias Lopez Bergero)

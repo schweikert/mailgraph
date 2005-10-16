@@ -201,7 +201,7 @@ sub send_image($)
 	print "\n";
 	open(IMG, $file) or die;
 	my $data;
-	print $data while sysread(IMG, $data, 16384)>0;
+	print $data while read(IMG, $data, 16384)>0;
 }
 
 sub main()
