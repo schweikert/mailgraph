@@ -1,3 +1,12 @@
+2006-01-15
+----------
+* released version 1.13
+* add support for MxTreme mail gateway (Guido)
+* improve support for drweb (Lev)
+* improve support for MailScanner (Simon Hartl)
+* improve support for AntiVir (Frank Urban)
+* fix DST-switch timewarp in autumn (Parse::Syslog 1.09)
+
 2005-10-16
 ----------
 * released version 1.12

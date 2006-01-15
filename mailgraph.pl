@@ -76,7 +76,7 @@ sub usage
 	print "  --daemon-rrd=DIR   write RRDs to DIR instead of /var/log\n";
 	print "  --daemon-log=FILE  write verbose-log to FILE instead of /var/log/mailgraph.log\n";
 	print "  --ignore-localhost ignore mail to/from localhost (used for virus scanner)\n";
-	print "  --ignore-host=HOST ignore mail to/from HOST (used for virus scanner)\n";
+	print "  --ignore-host=HOST ignore mail to/from HOST regexp (used for virus scanner)\n";
 	print "  --only-mail-rrd    update only the mail rrd\n";
 	print "  --only-virus-rrd   update only the virus rrd\n";
 	print "  --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files\n";
@@ -371,11 +371,11 @@ sub process_line($)
 			event($time, 'virus');
 		}
 		# Vexira antispam
-		if($text =~ /\bcontains spam\b/) {
+		elsif($text =~ /\bcontains spam\b/) {
 			event($time, 'spam');
 		}
 	}
-	elsif($prog eq 'avgatefwd') {
+	elsif($prog eq 'avgatefwd' or $prog eq 'avmailgate.bin') {
 		# AntiVir MailGate
 		if($text =~ /^Alert!/) {
 			event($time, 'virus');
@@ -407,7 +407,7 @@ sub process_line($)
 	}
 	elsif($prog eq 'drweb-postfix') {
 		# DrWeb
-		if($text =~ /infected$/) {
+		if($text =~ /infected/) {
 			event($time, 'virus');
 		}
 	}
@@ -423,13 +423,14 @@ sub process_line($)
 		if($text =~ /quarantine/ ) {
 			event($time, 'virus');
 		}
-		# you need to turn on "Detail Spam Report = yes" in
-		# MailScanner.conf (Gabriele Oleotti_
-		elsif($text =~ /SpamAssassin/ ) {
-			event($time, 'spam');
-		}
-		if($text =~ /Bounce to/ ) {
+		elsif($text =~ /Bounce to/ ) {
 			event($time, 'bounced');
+		}
+		elsif($text =~ /^Spam Checks: Found ([0-9]+) spam messages/) {
+			my $cnt = $1;
+			for (my $i=0; $i<$cnt; $i++) {
+				event($time, 'spam');
+			}
 		}
 	}
 	elsif($prog eq 'clamsmtpd') {
@@ -464,6 +465,11 @@ sub process_line($)
 	elsif($prog eq 'filter-module') {
 		if($text =~ /\bspam_status\=yes/) {
 			event($time, 'spam');
+		}
+	}
+	elsif($prog eq 'sta_scanner') {
+		if($text =~ /^[0-9A-F]+: virus/) {
+			event($time, 'virus');
 		}
 	}
 }
@@ -531,7 +537,7 @@ B<mailgraph> [I<options>...]
  --daemon-rrd=DIR   write RRDs to DIR instead of /var/log
  --daemon-log=FILE  write verbose-log to FILE instead of /var/log/mailgraph.log
  --ignore-localhost ignore mail to/from localhost (used for virus scanner)
- --ignore-host=HOST ignore mail to/from HOST (used for virus scanner)
+ --ignore-host=HOST ignore mail to/from HOST regexp (used for virus scanner)
  --only-mail-rrd    update only the mail rrd
  --only-virus-rrd   update only the virus rrd
  --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files
