@@ -255,7 +255,7 @@ sub process_line($)
 					$client =~ /$opt{'ignore-host'}/oi;
 				event($time, 'received');
 			}
-			elsif($opt{'virbl-is-virus'} and $text =~ /^(?:[0-9A-F]+: |NOQUEUE: )?reject: .*: 554.* blocked using irbl.dnsbl.bit.nl/) {
+			elsif($opt{'virbl-is-virus'} and $text =~ /^(?:[0-9A-F]+: |NOQUEUE: )?reject: .*: 554.* blocked using virbl.dnsbl.bit.nl/) {
 				event($time, 'virus');
 			}
 			elsif($opt{'rbl-is-spam'} and $text    =~ /^(?:[0-9A-F]+: |NOQUEUE: )?reject: .*: 554.* blocked using/) {
