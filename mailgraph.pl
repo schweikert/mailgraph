@@ -90,7 +90,7 @@ sub main
 {
 	Getopt::Long::Configure('no_ignore_case');
 	GetOptions(\%opt, 'help|h', 'cat|c', 'logfile|l=s', 'logtype|t=s', 'version|V',
-		'year|y=i', 'host=s', 'verbose|v+', 'daemon|d!',
+		'year|y=i', 'host=s', 'verbose|v', 'daemon|d!',
 		'daemon_pid|daemon-pid=s', 'daemon_rrd|daemon-rrd=s',
 		'daemon_log|daemon-log=s', 'ignore-localhost!', 'ignore-host=s',
 		'only-mail-rrd', 'only-virus-rrd', 'rrd_name|rrd-name=s',
