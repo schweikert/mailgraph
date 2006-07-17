@@ -1,6 +1,8 @@
-2006-03-16
+2006-07-17
 ----------
 * virbl was mispelled (Eddy Beliveau)
+* add commented-out code for clamassassin (Adrian von Bidder)
+* improve support for AntiVir (Wolfram Schlich)
 
 2006-01-15
 ----------

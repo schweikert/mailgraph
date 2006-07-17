@@ -443,6 +443,12 @@ sub process_line($)
 			event($time, 'virus');
 		}
 	}
+	# uncommment for clamassassin:
+	#elsif($prog eq 'clamd') {
+	#	if($text =~ /^stream: .* FOUND$/) {
+	#		event($time, 'virus');
+	#	}
+	#}
 	elsif ($prog eq 'smtp-vilter') {
 		if ($text =~ /clamd: found/) {
 			event($time, 'virus');
