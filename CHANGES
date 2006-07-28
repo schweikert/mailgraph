@@ -3,6 +3,7 @@
 * virbl was mispelled (Eddy Beliveau)
 * add commented-out code for clamassassin (Adrian von Bidder)
 * improve support for AntiVir (Wolfram Schlich)
+* add support for Borderware Mxtreme (Postfix variant, Johan Nilsson)
 
 2006-01-15
 ----------
