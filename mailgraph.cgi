@@ -181,7 +181,7 @@ HEADER
 <A href="http://people.ee.ethz.ch/~dws/software/mailgraph">Mailgraph</A> $VERSION
 by <A href="http://people.ee.ethz.ch/~dws/">David Schweikert</A></td>
 <td ALIGN="right">
-<a HREF="http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/"><img border="0" src="http://people.ethz.ch/~oetiker/webtools/rrdtool/.pics/rrdtool.gif" alt="" width="120" height="34"></a>
+<a HREF="http://oss.oetiker.ch/rrdtool/"><img border="0" src="http://oss.oetiker.ch/rrdtool/.pics/rrdtool.gif" alt="" width="120" height="34"></a>
 </td></tr></table>
 </BODY></HTML>
 FOOTER
