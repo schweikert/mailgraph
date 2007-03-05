@@ -1,9 +1,0 @@
-#!/usr/bin/perl -w -n
-
-s|^#!/usr/sepp/bin/perl\S*|#!/usr/bin/perl|;
-$skip=1 if /^#+ ISGTC {/;
-$skip=0 if /^#+ ISGTC }/;
-next    if /^#+ ISGTC }/;
-next    if $skip;
-
-print;

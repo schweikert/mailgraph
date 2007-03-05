@@ -1,12 +1,4 @@
-#!/usr/sepp/bin/perl -w
-### ISGTC {
-BEGIN {
-	$::ISGTC_MAGIC_LIBDIR = '/usr/isgtc/lib';
-	unshift @INC, "$::ISGTC_MAGIC_LIBDIR/perl";
-}
-use lib '/usr/pack/rrdtool-1.0.49-to/lib/perl';
-use Parse::Syslog;
-### ISGTC }
+#!/usr/bin/perl -w
 
 # mailgraph -- an rrdtool frontend for mail statistics
 # copyright (c) 2000-2005 David Schweikert <dws@ee.ethz.ch>

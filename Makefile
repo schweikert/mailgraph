@@ -7,7 +7,7 @@ D=mailgraph-$(VERSION)
 build:
 	# D/mailgraph.pl
 	mkdir $(D)
-	perl embed.pl mailgraph.pl | ./isgtc_to_public >$(D)/mailgraph.pl
+	perl embed.pl mailgraph.pl >$(D)/mailgraph.pl
 	perl -pi -e 's/^my \$$VERSION =.*/my \$$VERSION = "$(VERSION)";/' $(D)/mailgraph.pl
 	chmod 755 $(D)/mailgraph.pl
 	# mailgraph.cgi
