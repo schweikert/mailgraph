@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
 
 # mailgraph -- an rrdtool frontend for mail statistics
-# copyright (c) 2000-2005 David Schweikert <dws@ee.ethz.ch>
+# copyright (c) 2000-2007 ETH Zurich
+# copyright (c) 2000-2007 David Schweikert <david@schweikert.ch>
 # released under the GNU General Public License
 
 ## EMBED(../Parse_Syslog/lib/Parse/Syslog.pm)
@@ -565,7 +566,8 @@ Metalog (see http://metalog.sourceforge.net/)
 
 =head1 COPYRIGHT
 
-Copyright (c) 2004-2005 by ETH Zurich. All rights reserved.
+Copyright (c) 2000-2007 by ETH Zurich
+Copyright (c) 2000-2007 by David Schweikert
 
 =head1 LICENSE
 
@@ -585,12 +587,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 =head1 AUTHOR
 
-S<David Schweikert E<lt>dws@ee.ethz.chE<gt>>
-
-=head1 HISTORY
-
- 2002-03-19 ds Version 0.20
- 2004-10-11 ds Initial ISGTC version (1.10)
+S<David Schweikert E<lt>david@schweikert.chE<gt>>
 
 =cut
 

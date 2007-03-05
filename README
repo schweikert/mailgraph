@@ -1,7 +1,7 @@
 
       -----------------------------------------------------
       mailgraph - a RRDtool frontend for Postfix Statistics
-      by David Schweikert <dws@ee.ethz.ch>
+      by David Schweikert <david@schweikert.ch>
       -----------------------------------------------------
 
 mailgraph is a very simple mail statistics RRDtool frontend for Postfix
@@ -11,15 +11,15 @@ and bounced/rejected mail (SMTP traffic).
 Get it from:
 
 
-         http://people.ee.ethz.ch/dws/software/mailgraph/
-	 ================================================
+         http://mailgraph.schweikert.ch/
+	 ===============================
 
 
 Required Modules
 ----------------
 
 - rrdtool and it's perl module (RRDs)
-  -> http://people.ee.ethz.ch/~oetiker/webtools/rrdtool/
+  -> http://oss.oetiker.ch/rrdtool/
 
 - File::Tail (which requires Time::HiRes)
   -> get it from CPAN

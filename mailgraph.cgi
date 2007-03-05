@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
 
-# mailgraph -- a postfix statistics rrdtool frontend
-# copyright (c) 2000-2005 David Schweikert <dws@ee.ethz.ch>
+# mailgraph -- postfix mail traffic statistics
+# copyright (c) 2000-2007 ETH Zurich
+# copyright (c) 2000-2007 David Schweikert <david@schweikert.ch>
 # released under the GNU General Public License
 
 use RRDs;
@@ -178,8 +179,8 @@ HEADER
 	print <<FOOTER;
 <hr width="630" align="left" size="1" noshade>
 <table border="0" width="630" cellpadding="0" cellspacing="0" background="#dddddd"><tr><td align="left">
-<A href="http://people.ee.ethz.ch/~dws/software/mailgraph">Mailgraph</A> $VERSION
-by <A href="http://people.ee.ethz.ch/~dws/">David Schweikert</A></td>
+<A href="http://mailgraph.schweikert.ch/">Mailgraph</A> $VERSION
+by <A href="http://david.schweikert.ch/">David Schweikert</A></td>
 <td ALIGN="right">
 <a HREF="http://oss.oetiker.ch/rrdtool/"><img border="0" src="http://oss.oetiker.ch/rrdtool/.pics/rrdtool.gif" alt="" width="120" height="34"></a>
 </td></tr></table>
