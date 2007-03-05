@@ -323,7 +323,7 @@ sub process_line($)
 		}
 	}
 	elsif($prog eq 'amavis' || $prog eq 'amavisd') {
-		if(   $text =~ /^\([0-9-]+\) (Passed|Blocked) SPAM\b/) {
+		if(   $text =~ /^\([0-9-]+\) (Passed|Blocked) SPAM(?:MY)?\b/) {
 			event($time, 'spam'); # since amavisd-new-2004xxxx
 		}
 		elsif($text =~ /^\([0-9-]+\) (Passed|Not-Delivered)\b.*\bquarantine spam/) {

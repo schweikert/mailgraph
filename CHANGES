@@ -1,39 +1,33 @@
-2006-07-17
-----------
+2.0 (2007-03-03)
+----------------
+* mailgraph.pl is now called mailgraph-agent
 * virbl was mispelled (Eddy Beliveau)
 * add commented-out code for clamassassin (Adrian von Bidder)
 * improve support for AntiVir (Wolfram Schlich)
 * add support for Borderware Mxtreme (Postfix variant, Johan Nilsson)
+* add support for Amavisd-new >= 2.4 (Christoph Kessinger)
+* XHTML 1.0 strict output (Yllar Pajus)
 
-2006-01-15
-----------
-* released version 1.13
+1.13 (2006-01-15)
+-----------------
 * add support for MxTreme mail gateway (Guido)
 * improve support for drweb (Lev)
 * improve support for MailScanner (Simon Hartl)
 * improve support for AntiVir (Frank Urban)
 * fix DST-switch timewarp in autumn (Parse::Syslog 1.09)
 
-2005-10-16
-----------
-* released version 1.12
+1.12 (2005-10-16)
+-----------------
 * sendmail fixes (Ben Lentz, R. Scott Baer)
 * compatibility with rrdtool 1.2.0 and 1.2.1 (no --slope-mode)
 * compatibility with SpamAssassin 3.1.0 (Matias Lopez Bergero)
-
-2005-08-15
-----------
 * add support for newer Vexira versions (Alexandru Suchici)
-
-2005-06-09
-----------
 * sendmail fixes (Immo Goltz)
 * ensure that the correct RRA is always chosen
 * nice -19 for mailgraph.pl in example init script (Alexander Norman)
 
-2005-06-05
-----------
-* released version 1.11
+1.11 (2005-06-05)
+-----------------
 * add support for clamsmtpd (Aaron Wolfe)
 * add support for AVMilter (Stephan A. Klein)
 * add chkconfig to init script (DanielC)
@@ -43,41 +37,24 @@
 * detect as virus mails blocked by amavis by file-extension
 * sendmail fixes (Alexander Bochmann)
 * compatibility with RRDtool 1.2.x
-
-2005-04-07
-----------
 * document the --logtypes
-
-2005-01-24
-----------
 * recognize postfix/error bounces
 * --daemon-rrd is now always respected (also without --daemon) 
-
-2004-11-04
-----------
 * ignore per-recipient log entries of new amavisd-new versions
 
-2004-10-21
-----------
-* released version 1.10
+1.10 (2004-10-21)
+-----------------
 * dspam support (Nagilum)
 * change CGI to use parameters instead of PATH_INFO, which not all web-servers support
-
-2004-10-04
-----------
 * Avoid showing "milli-messages/s" on the y scale (R.M. Evers)
 * Added --rbl-is-spam flag (David Gibbs)
 * Sendmail fixes (David Gibbs)
 * amavisd-new <= 20030616 (R.M. Evers)
-
-2004-08-18
-----------
 * Sendmail fixes (David Gibbs)
 * Line intead of area for rejects
 
-2004-07-11
-----------
-* released version 1.9
+1.9 (2004-07-11)
+----------------
 * implemented --ignore-host=HOST (use it instead of --ignore-localhost if the
   antivirus is on another machine)
 * add automatic refresh to mailgraph.cgi (Frederic Massot)
@@ -85,76 +62,56 @@
   plot to the error plot and vice versa
 * --only-virus-rrd bugfix (Marlon Dutra)
 * support metalog with --type=metalog and FreeBSD's verbose logging (Parse::Syslog 1.04)
-
-2004-05-06
-----------
 * cosmetic changes of the CGI output
 * show with commented code how to tag as spam all RBL rejects
   (Philip Hallstrom)
-
-2004-04-03
-----------
 * added support for clamav-milter (David Gibbs)
-
-2004-02-09
-----------
 * update sendmail regexps (Hugo van der Kooij)
 
-2004-02-07
-----------
-* released 1.8
+1.8 (2004-02-07)
+----------------
 * amavisd: count spam to "spam-lovers" (D_PASS)
 * initial sendmail support (Hugo van der Kooij)
 * added --rrd-name option (Tycho Fruru)
 
-2004-01-29
-----------
-* released 1.7
+1.7 (2004-01-29)
+----------------
 * --ignore-localhost didn't work correctly (Samuel Kesterson)
 
-2004-01-19
-----------
-* released 1.6
+1.6 (2004-01-19)
+----------------
 * do not parse lines with timestamps in the future (warn instead)
 
-2004-01-19
-----------
-* released 1.5
+1.5 (2004-01-19)
+----------------
 * New amavisd code by Mark Martinec
 * Removed parsing for 'pipe' service since it doesn't make much sense
 * Support for MailScanner/SpamAssassin (Gabriele Oleotti)
 * Support for latest Postfix snapshot (Ralf Hildebrandt)
 * Support for bounces with Cyrus (Will)
 * Cosmetic fixes in the CGI
-
-2003-09-25
-----------
 * better regexps for amavis
-
-2003-07-04
-----------
 * implemented --only-mail-rrd and --only-virus-rrd
 
-2003-06-14
-----------
-* release 1.4
+1.4 (2003-06-14)
+----------------
 * another amavisd-new fix (Jens Stark)
 * support for CLAMD (Fredrik Wahl)
 * fix too permissive regexp for dection of amavis virus (Yifang Dai)
 * implemented --ignore-localhost option (localhost not anymore ignored
   unless option is not given)
 
-2003-06-10
-----------
-* release 1.3
+1.3 (2003-06-10)
+----------------
 * support for MailScanner (Carlos Horowicz)
 * support for Amavisd-new 20030314p1
 
-2003-01-05
-----------
-* release 1.2
+1.2 (2003-01-05)
+----------------
 * fix option processing with Perl 5.8.0
-* release 1.1
+
+1.1 (2003-01-05)
+----------------
 * added example init script mailgraph-init
 * implemented --daemon option
 * implemented --verbose option (rossen)
@@ -162,170 +119,121 @@
 * support delivery through 'pipe' for Cyrus (rossen)
 * support AMaViS 0.3.12pre8 (MAnderson)
 
-2002-12-16
-----------
-* release 1.0
+1.0 (2002-12-16)
+----------------
 * better contrast in error graph, easily changeable colors
 * support for newest amavisd-new (bpratt and
   Ralf.Hildebrandt)
 * support for AntiVir MailGate (paulb)
 * support for Postfix cleanup-DISCARD of newer versions (roland)
 * support for DrWeb Antivirus
-
-2002-11-29
-----------
 * Postfix 1.1.11 reports the queue also for rejects (Ralf.Hildebrandt)
-
-2002-11-19
-----------
 * support for SpamAssassin with Amavis (Ralf.Hildebrandt)
-
-2002-11-14
-----------
 * --host is now a perl regexp
 
-2002-10-28
-----------
-* release 0.23
+0.23 (2002-10-28)
+-----------------
 * fix off-by-one-hour error when running during daylight saving time switch
 * implement --host option
 * improve a little parsing speed
 
-2002-09-24
-----------
-* release 0.22
+0.22 (2002-09-24)
+-----------------
 * support for amavisd builtin spamassassin (erich)
 * do not count mail from/to localhost (erich)
 * show averages in graphs (erich)
 * stacked error graph with nice colors (erich)
-
-2002-08-29
-----------
 * support for Vexira antivirus (admin_at_wexoe.dk)
 * support for Avcheck antivirus (sdesse)
 
-2002-08-13
-----------
-* release 0.21
+0.21 (2002-08-13)
+-----------------
 * recognize spam detected by spamproxyd (dsalbego)
-
-2002-07-05
-----------
 * totals are now more precise
 * fixed average and maximum virus/spam statistics
 
-2002-07-02
-----------
-* release 0.20
+0.20 (2002-07-02)
+-----------------
 * added statistics for Viruses (amavisd) and SPAM (spamassassin with spamd)
 * recognize also bounces based on header_checks and body_checks (Roland Arendes)
 
-2002-04-03
-----------
-* release 0.19
+0.19 (2002-04-03)
+-----------------
 * support more than one mailgraph instances on the same machine
 * implemented option --year to specify a starting year other than the current year
 
-2002-03-15
-----------
-* release 0.18
+0.18 (2002-03-15)
+-----------------
 * send the images directly from the CGI, should make configuration of the CGI
   much easier.
 * Parse::Syslog 0.05: more robust syslog parsing
-
-2001-12-03
-----------
 * run mailgraph.cgi in tainted mode (Anders Nordby)
 
-2001-11-07
-----------
-* release 0.17
+0.17 (2001-11-07)
+-----------------
 * Parse::Syslog 0.04 (unreleased): much faster syslog parsing,
   more robust year-increment algorithm
 
-2001-09-28
-----------
-* release 0.16
+0.16 (2001-09-28)
+-----------------
 * fix wrong label in graph (msg/hour -> msgs/min !), reported by
   S. William Schulz
 
-2001-08-24
-----------
-* release 0.15
+0.15 (2001-08-24)
+-----------------
 * use the Parse::Syslog module (embedded in the script, no need to install it)
 
-2001-08-01
-----------
-* release 0.14
+0.14 (2001-08-01)
+-----------------
 * allow for different paths for images directory and images URL.
 
-2001-06-22
-----------
-* release 0.13
+0.13 (2001-06-22)
+-----------------
 * 'total' are real totals now
 * workaround rrdtool RRA selection problem because of partial matches
 
-2001-06-22
-----------
-* release 0.12
+0.12 (2001-06-22)
+-----------------
 * removed graphing code from mailgraph.pl and added mailgraph.cgi
-
-2001-06-21
-----------
 * change RRAs so that rrdtool should always choose the correct one
 
-2001-06-20
-----------
-* release 0.11
+0.11 (2001-06-20)
+-----------------
 * make everything an option
 * use long options
 * add '--graph' option
 * update example.html and README
 
-2001-05-10
-----------
-* release 0.10
+0.10 (2001-05-10)
+-----------------
 * report also bounces produced by postfix/smtp (bug reported by nomad4)
-
-2001-01-22
-----------
 * small improvement of README
 
-2001-01-19
-----------
-* release 0.9
+0.9 (2001-01-19)
+----------------
 * improved "received" regular expression (didn't always match)
   bug reported by Adrian P. van Bloois
 
-2001-01-07
-----------
-* release 0.8
+0.8 (2001-01-07)
+----------------
 * fix syslog-date parsing bug (January). Reported by 
   Piotr Wasilewski, Leif Nixon, and Jeje
 
-2000-12-13
-----------
-* release 0.7
+0.7 (2000-12-13)
+----------------
 * add "Max" to graph, generation timestamp
 * make graphs up-to time just before present. This should fix the
   wrong-selected-RRA problem.
 
-2000-12-04
-----------
-* release 0.6
-
-2000-11-20
-----------
+0.6 (2000-12-04)
+----------------
 * removed maxinterval from Fail::Tail, was much too high and anyhow not necessary
 
-2000-11-11
-----------
-* release 0.5
+0.5 (2000-11-11)
+----------------
 * .png files were GIF... Now they are really PNG files.
 
-2000-11-11
-----------
-* release 0.4
+0.4 (2000-11-11)
+----------------
 * change graph generation period to 30 minutes
 * archive unpacks in a subdirectory
-* release 0.3 (first public release)

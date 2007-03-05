@@ -157,34 +157,54 @@ sub print_html()
 	print "Content-Type: text/html\n\n";
 
 	print <<HEADER;
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
-<HTML>
-<HEAD>
-<TITLE>Mail Statistics for $host</TITLE>
-<META HTTP-EQUIV="Refresh" CONTENT="300">
-<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-</HEAD>
-<BODY BGCOLOR="#FFFFFF">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Mail Statistics for $host</title>
+<meta http-equiv="Refresh" content="300" />
+<meta http-equiv="Pragma" content="no-cache" />
+<style type="text/css">
+html {
+	background-color: white;
+	font-family: sans-serif;
+	font-size: 12pt;
+}
+hr {
+	width: 630px;
+	height: 1px;
+	text-align: left;
+	background: inherit;
+}
+
+table {
+	border: 0px;
+	width: 630px;
+	background-color: #ddd;
+}
+</style>
+</head>
+<body>
 HEADER
 
-	print "<H1>Mail Statistics for $host</H1>\n";
+	print "<h1>Mail Statistics for $host</h1>\n";
 	for my $n (0..$#graphs) {
 		print '<div style="background: #dddddd; width: 632px">';
-		print "<H2>$graphs[$n]{title}</H2>\n";
+		print "<h2>$graphs[$n]{title}</h2>\n";
 		print "</div>\n";
-		print "<P><IMG BORDER=\"0\" SRC=\"$scriptname?${n}-n\" ALT=\"mailgraph\">\n";
-		print "<P><IMG BORDER=\"0\" SRC=\"$scriptname?${n}-e\" ALT=\"mailgraph\">\n";
+		print "<p><img src=\"$scriptname?${n}-n\" alt=\"mailgraph\"/>\n";
+		print "<p><img src=\"$scriptname?${n}-e\" alt=\"mailgraph\"/>\n";
 	}
 
 	print <<FOOTER;
-<hr width="630" align="left" size="1" noshade>
-<table border="0" width="630" cellpadding="0" cellspacing="0" background="#dddddd"><tr><td align="left">
-<A href="http://mailgraph.schweikert.ch/">Mailgraph</A> $VERSION
-by <A href="http://david.schweikert.ch/">David Schweikert</A></td>
-<td ALIGN="right">
-<a HREF="http://oss.oetiker.ch/rrdtool/"><img border="0" src="http://oss.oetiker.ch/rrdtool/.pics/rrdtool.gif" alt="" width="120" height="34"></a>
+<hr/>
+<table><tr><td>
+<a href="http://mailgraph.schweikert.ch/">Mailgraph</A> $VERSION
+by <a href="http://david.schweikert.ch/">David Schweikert</A></td>
+<td align="right">
+<a href="http://oss.oetiker.ch/rrdtool/"><img border="0" src="http://oss.oetiker.ch/rrdtool/.pics/rrdtool.gif" alt="" width="120" height="34"/></a>
 </td></tr></table>
-</BODY></HTML>
+</body></html>
 FOOTER
 }
 
