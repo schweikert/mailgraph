@@ -59,9 +59,7 @@ sub rrd_graph(@)
 		'--color', 'SHADEB#ffffff',
 		'--color', 'BACK#ffffff',
 
-		$RRDs::VERSION < 1.2002 ? () : (
-			'--slope-mode'
-		),
+		$RRDs::VERSION < 1.2002 ? () : ( '--slope-mode'),
 
 		@rrdargs,
 
