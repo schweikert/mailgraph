@@ -21,10 +21,10 @@ my $rrd_virus = 'mailgraph_virus.rrd'; # path to where the Virus RRD database is
 my $tmp_dir = '/tmp/mailgraph'; # temporary directory where to store the images
 
 my @graphs = (
-	{ title => 'Day Graphs',   seconds => 3600*24,        },
-	{ title => 'Week Graphs',  seconds => 3600*24*7,      },
-	{ title => 'Month Graphs', seconds => 3600*24*31,     },
-	{ title => 'Year Graphs',  seconds => 3600*24*365, },
+	{ title => 'Last Day',   seconds => 3600*24,        },
+	{ title => 'Last Week',  seconds => 3600*24*7,      },
+	{ title => 'Last Month', seconds => 3600*24*31,     },
+	{ title => 'Last Year',  seconds => 3600*24*365, },
 );
 
 my %color = (
@@ -165,20 +165,19 @@ sub print_html()
 <meta http-equiv="Refresh" content="300" />
 <meta http-equiv="Pragma" content="no-cache" />
 <style type="text/css">
-*     { margin: 0; padding: 0; }
+*     { margin: 0; padding: 0 }
 body  { width: 630px; background-color: white;
 	font-family: sans-serif;
 	font-size: 12pt;
-	margin: 5px; }
-h1    { margin-top: 20px; margin-bottom: 30px; text-align: center }
+	margin: 5px }
+h1    { margin-top: 20px; margin-bottom: 30px;
+        text-align: center }
 h2    { background-color: #ddd;
 	padding: 4px }
-hr    { position: absolute;
-	left: 5px;
-	height: 1px;
+hr    { height: 1px;
 	border: 0;
 	border-top: 1px solid #aaa }
-table { border: 0px; width: 100%; }
+table { border: 0px; width: 100% }
 img   { border: 0 }
 </style>
 </head>
