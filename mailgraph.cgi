@@ -161,48 +161,44 @@ sub print_html()
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Mail Statistics for $host</title>
+<title>Mail statistics for $host</title>
 <meta http-equiv="Refresh" content="300" />
 <meta http-equiv="Pragma" content="no-cache" />
 <style type="text/css">
-html {
-	background-color: white;
+*     { margin: 0; padding: 0; }
+body  { width: 630px; background-color: white;
 	font-family: sans-serif;
 	font-size: 12pt;
-}
-hr {
-	width: 630px;
+	margin: 5px; }
+h1    { margin-top: 20px; margin-bottom: 30px; text-align: center }
+h2    { background-color: #ddd;
+	padding: 4px }
+hr    { position: absolute;
+	left: 5px;
 	height: 1px;
-	text-align: left;
-	background: inherit;
-}
-
-table {
-	border: 0px;
-	width: 630px;
-	background-color: #ddd;
-}
+	border: 0;
+	border-top: 1px solid #aaa }
+table { border: 0px; width: 100%; }
+img   { border: 0 }
 </style>
 </head>
 <body>
 HEADER
 
-	print "<h1>Mail Statistics for $host</h1>\n";
+	print "<h1>Mail statistics for $host</h1>\n";
 	for my $n (0..$#graphs) {
-		print '<div style="background: #dddddd; width: 632px">';
 		print "<h2>$graphs[$n]{title}</h2>\n";
-		print "</div>\n";
-		print "<p><img src=\"$scriptname?${n}-n\" alt=\"mailgraph\"/>\n";
-		print "<p><img src=\"$scriptname?${n}-e\" alt=\"mailgraph\"/>\n";
+		print "<p><img src=\"$scriptname?${n}-n\" alt=\"mailgraph\"/><br/>\n";
+		print "<img src=\"$scriptname?${n}-e\" alt=\"mailgraph\"/></p>\n";
 	}
 
 	print <<FOOTER;
 <hr/>
 <table><tr><td>
-<a href="http://mailgraph.schweikert.ch/">Mailgraph</A> $VERSION
-by <a href="http://david.schweikert.ch/">David Schweikert</A></td>
+<a href="http://mailgraph.schweikert.ch/">Mailgraph</a> $VERSION
+by <a href="http://david.schweikert.ch/">David Schweikert</a></td>
 <td align="right">
-<a href="http://oss.oetiker.ch/rrdtool/"><img border="0" src="http://oss.oetiker.ch/rrdtool/.pics/rrdtool.gif" alt="" width="120" height="34"/></a>
+<a href="http://oss.oetiker.ch/rrdtool/"><img src="http://oss.oetiker.ch/rrdtool/.pics/rrdtool.gif" alt="" width="120" height="34"/></a>
 </td></tr></table>
 </body></html>
 FOOTER
