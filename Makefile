@@ -23,7 +23,7 @@ tag:
 merge:
 	svk smerge -I -f //mailgraph
 
-build:
+build: tag
 	# D/mailgraph.pl
 	mkdir $(D)
 	perl embed.pl mailgraph.pl >$(D)/mailgraph.pl
