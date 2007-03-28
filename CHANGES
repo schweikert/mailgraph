@@ -1,12 +1,13 @@
 1.14 (2007-03-03)
 ----------------
-* mailgraph.pl is now called mailgraph-agent
 * virbl was mispelled (Eddy Beliveau)
 * add commented-out code for clamassassin (Adrian von Bidder)
 * improve support for AntiVir (Wolfram Schlich)
 * add support for Borderware Mxtreme (Postfix variant, Johan Nilsson)
 * add support for Amavisd-new >= 2.4 (Christoph Kessinger)
 * XHTML 1.0 strict output (Yllar Pajus)
+* update support for MailScanner (Pierre-Yves Bonnetain)
+* add releative jump points (Hugo van der Kooij)
 
 1.13 (2006-01-15)
 -----------------

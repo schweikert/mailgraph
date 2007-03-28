@@ -413,7 +413,7 @@ sub process_line($)
 		}
 	}
 	elsif($prog eq 'MailScanner') {
-		if($text =~ /quarantine/ ) {
+		if($text =~ /(Virus Scanning: Found)/ ) {
 			event($time, 'virus');
 		}
 		elsif($text =~ /Bounce to/ ) {
