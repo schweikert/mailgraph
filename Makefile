@@ -5,10 +5,11 @@ FILES=mailgraph.cgi mailgraph-init README COPYING CHANGES
 D=mailgraph-$(VERSION)
 
 tag:
-	@svk st | grep 'M' >/dev/null && \
-		echo Commit your changes! && exit 1
-	@svk push -C | grep  'Empty' >/dev/null || \
-		echo Push your changes! && exit 1
+	@svk st | grep 'M' >/dev/null; \
+		if [ $$? -eq 0 ]; then \
+			echo "Commit your changes!"; \
+			exit 1; \
+		fi
 
 build:
 	# D/mailgraph.pl
