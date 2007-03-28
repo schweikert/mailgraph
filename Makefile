@@ -1,8 +1,14 @@
 VERSION_MAJOR=1
-VERSION_MINOR=13
+VERSION_MINOR=14
 VERSION=$(VERSION_MAJOR).$(VERSION_MINOR)
 FILES=mailgraph.cgi mailgraph-init README COPYING CHANGES
 D=mailgraph-$(VERSION)
+
+tag:
+	@svk st | grep 'M' >/dev/null && \
+		echo Commit your changes! && exit 1
+	@svk push -C | grep  'Empty' >/dev/null || \
+		echo Push your changes! && exit 1
 
 build:
 	# D/mailgraph.pl
@@ -13,9 +19,9 @@ build:
 	# mailgraph.cgi
 	perl -pi -e 's/^my \$$VERSION =.*/my \$$VERSION = "$(VERSION)";/' mailgraph.cgi
 	# copy the files
-	gtar cf - $(FILES) | (cd mailgraph-$(VERSION) && gtar xf -)
+	tar cf - $(FILES) | (cd mailgraph-$(VERSION) && tar xf -)
 	# tarball
 	cvs tag v$(VERSION_MAJOR)_$(VERSION_MINOR)
-	gtar czvf pub/mailgraph-$(VERSION).tar.gz mailgraph-$(VERSION)
+	tar czvf pub/mailgraph-$(VERSION).tar.gz mailgraph-$(VERSION)
 	rm -rf mailgraph-$(VERSION)
 	cp CHANGES pub

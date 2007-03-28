@@ -5,7 +5,7 @@
 # copyright (c) 2000-2007 David Schweikert <david@schweikert.ch>
 # released under the GNU General Public License
 
-## EMBED(../Parse_Syslog/lib/Parse/Syslog.pm)
+## EMBED(/home/dws/checkouts/dws/sw/Parse-Syslog/lib/Parse/Syslog.pm)
 
 #####################################################################
 #####################################################################
