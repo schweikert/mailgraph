@@ -9,6 +9,7 @@
 * update support for MailScanner (Pierre-Yves Bonnetain)
 * add releative jump points (Hugo van der Kooij)
 * add support for the ClamAV SpamAssassin plugin (Thomas Brown)
+* update support for Kaspersky AntiVirus (Igor Moskovko)
 
 1.13 (2006-01-15)
 -----------------

@@ -466,7 +466,7 @@ sub process_line($)
 		}
 	}
 	elsif($prog eq 'filter-module') {
-		if($text =~ /\bspam_status\=yes/) {
+		if($text =~ /\bspam_status\=(?:yes|spam)/) {
 			event($time, 'spam');
 		}
 	}
