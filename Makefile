@@ -10,6 +10,7 @@ tag:
 			echo "Commit your changes!"; \
 			exit 1; \
 		fi
+	svk cp -m 'Tag version $(VERSION_MAJOR).$(VERSION_MINOR)' //mailgraph/trunk //mailgraph/tags/version-$(VERSION_MAJOR).$(VERSION_MINOR)
 
 build:
 	# D/mailgraph.pl
