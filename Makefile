@@ -1,8 +1,12 @@
 VERSION_MAJOR=1
-VERSION_MINOR=14
+VERSION_MINOR=13
 VERSION=$(VERSION_MAJOR).$(VERSION_MINOR)
 FILES=mailgraph.cgi mailgraph-init README COPYING CHANGES
 D=mailgraph-$(VERSION)
+
+all: tag-build
+
+tag-build: tag merge build
 
 tag:
 	@svk st | grep 'M' >/dev/null; \
@@ -10,7 +14,13 @@ tag:
 			echo "Commit your changes!"; \
 			exit 1; \
 		fi
+	@if svk ls //mailgraph/tags/version-$(VERSION_MAJOR).$(VERSION_MINOR) >/dev/null; then \
+		echo "Tag version-$(VERSION_MAJOR).$(VERSION_MINOR) already exists!"; \
+		exit 1; \
+	fi
 	svk cp -m 'Tag version $(VERSION_MAJOR).$(VERSION_MINOR)' //mailgraph/trunk //mailgraph/tags/version-$(VERSION_MAJOR).$(VERSION_MINOR)
+
+merge:
 	svk smerge -I -f //mailgraph
 
 build:
@@ -24,7 +34,8 @@ build:
 	# copy the files
 	tar cf - $(FILES) | (cd mailgraph-$(VERSION) && tar xf -)
 	# tarball
-	cvs tag v$(VERSION_MAJOR)_$(VERSION_MINOR)
 	tar czvf pub/mailgraph-$(VERSION).tar.gz mailgraph-$(VERSION)
 	rm -rf mailgraph-$(VERSION)
 	cp CHANGES pub
+
+.PHONY: all tag-build merge build

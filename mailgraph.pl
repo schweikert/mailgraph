@@ -92,7 +92,7 @@ sub main
 	usage if $opt{help};
 
 	if($opt{version}) {
-		print "mailgraph $VERSION by dws\@ee.ethz.ch\n";
+		print "mailgraph $VERSION by david\@schweikert.ch\n";
 		exit;
 	}
 
