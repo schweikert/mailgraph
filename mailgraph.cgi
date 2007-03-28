@@ -104,17 +104,6 @@ sub graph_err($$)
 	my ($range, $file) = @_;
 	my $step = $range*$points_per_sample/$xpoints;
 	rrd_graph($range, $file, $ypoints_err,
-		"DEF:rejected=$rrd:rejected:AVERAGE",
-		"DEF:mrejected=$rrd:rejected:MAX",
-		"CDEF:rrejected=rejected,60,*",
-		"CDEF:drejected=rejected,UN,0,rejected,IF,$step,*",
-		"CDEF:srejected=PREV,UN,drejected,PREV,IF,drejected,+",
-		"CDEF:rmrejected=mrejected,60,*",
-		"LINE2:rrejected#$color{rejected}:Rejected",
-		'GPRINT:srejected:MAX:total\: %8.0lf msgs',
-		'GPRINT:rrejected:AVERAGE:avg\: %5.2lf msgs/min',
-		'GPRINT:rmrejected:MAX:max\: %4.0lf msgs/min\l',
-
 		"DEF:bounced=$rrd:bounced:AVERAGE",
 		"DEF:mbounced=$rrd:bounced:MAX",
 		"CDEF:rbounced=bounced,60,*",
@@ -147,6 +136,18 @@ sub graph_err($$)
 		'GPRINT:sspam:MAX:total\: %8.0lf msgs',
 		'GPRINT:rspam:AVERAGE:avg\: %5.2lf msgs/min',
 		'GPRINT:rmspam:MAX:max\: %4.0lf msgs/min\l',
+
+		"DEF:rejected=$rrd:rejected:AVERAGE",
+		"DEF:mrejected=$rrd:rejected:MAX",
+		"CDEF:rrejected=rejected,60,*",
+		"CDEF:drejected=rejected,UN,0,rejected,IF,$step,*",
+		"CDEF:srejected=PREV,UN,drejected,PREV,IF,drejected,+",
+		"CDEF:rmrejected=mrejected,60,*",
+		"LINE2:rrejected#$color{rejected}:Rejected",
+		'GPRINT:srejected:MAX:total\: %8.0lf msgs',
+		'GPRINT:rrejected:AVERAGE:avg\: %5.2lf msgs/min',
+		'GPRINT:rmrejected:MAX:max\: %4.0lf msgs/min\l',
+
 	);
 }
 
