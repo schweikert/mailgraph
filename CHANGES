@@ -8,6 +8,7 @@
 * XHTML 1.0 strict output (Yllar Pajus)
 * update support for MailScanner (Pierre-Yves Bonnetain)
 * add releative jump points (Hugo van der Kooij)
+* add support for the ClamAV SpamAssassin plugin (Thomas Brown)
 
 1.13 (2006-01-15)
 -----------------

@@ -387,6 +387,10 @@ sub process_line($)
 		if($text =~ /^(?:spamd: )?identified spam/) {
 			event($time, 'spam');
 		}
+		# ClamAV SpamAssassin-plugin
+		elsif($text =~ /(?:result: )?CLAMAV/) {
+			event($time, 'virus');
+		}
 	}
 	elsif($prog eq 'dspam') {
 		if($text =~ /spam detected from/) {
