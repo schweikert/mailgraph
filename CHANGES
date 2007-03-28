@@ -14,7 +14,7 @@
 * update support for MailScanner (Simon Hartl, Pierre-Yves Bonnetain)
 * update support for AntiVir (Frank Urban)
 * fix DST-switch timewarp in autumn (Parse::Syslog 1.09)
-* fix hidden rejected line behind are items (Axel Beckert)
+* fix hidden rejected line behind area items (Axel Beckert)
 * fix virbl DNS name (Eddy Beliveau)
 
 1.12 (2005-10-16)
