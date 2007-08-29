@@ -1,3 +1,7 @@
+1.14 (2007-08-29)
+-----------------
+* --ignore-host can now be specified multiple times
+
 1.13 (2007-03-28)
 -----------------
 * New mailgraph homepage URL: http://mailgraph.schweikert.ch

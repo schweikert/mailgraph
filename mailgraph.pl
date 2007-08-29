@@ -85,7 +85,7 @@ sub main
 	GetOptions(\%opt, 'help|h', 'cat|c', 'logfile|l=s', 'logtype|t=s', 'version|V',
 		'year|y=i', 'host=s', 'verbose|v', 'daemon|d!',
 		'daemon_pid|daemon-pid=s', 'daemon_rrd|daemon-rrd=s',
-		'daemon_log|daemon-log=s', 'ignore-localhost!', 'ignore-host=s',
+		'daemon_log|daemon-log=s', 'ignore-localhost!', 'ignore-host=s@',
 		'only-mail-rrd', 'only-virus-rrd', 'rrd_name|rrd-name=s',
 		'rbl-is-spam', 'virbl-is-virus'
 		) or exit(1);
@@ -101,6 +101,13 @@ sub main
 	$daemon_rrd_dir = $opt{daemon_rrd} if defined $opt{daemon_rrd};
 	$rrd		= $opt{rrd_name}.".rrd" if defined $opt{rrd_name};
 	$rrd_virus	= $opt{rrd_name}."_virus.rrd" if defined $opt{rrd_name};
+
+	# compile --ignore-host regexps
+	if(defined $opt{'ignore-host'}) {
+		for my $ih (@{$opt{'ignore-host'}}) {
+			push @{$opt{'ignore-host-re'}}, qr{\brelay=[^\s,]*$ih}i;
+		}
+	}
 
 	if($opt{daemon} or $opt{daemon_rrd}) {
 		chdir $daemon_rrd_dir or die "mailgraph: can't chdir to $daemon_rrd_dir: $!";
@@ -226,8 +233,12 @@ sub process_line($)
 			if($text =~ /\bstatus=sent\b/) {
 				return if $opt{'ignore-localhost'} and
 					$text =~ /\brelay=[^\s\[]*\[127\.0\.0\.1\]/;
-				return if $opt{'ignore-host'} and
-					$text =~ /\brelay=[^\s,]*$opt{'ignore-host'}/oi;
+				if(defined $opt{'ignore-host-re'}) {
+					for my $ih (@{$opt{'ignore-host-re'}}) {
+						warn "MATCH! $text\n" if $text =~ $ih;
+						return if $text =~ $ih;
+					}
+				}
 				event($time, 'sent');
 			}
 			elsif($text =~ /\bstatus=bounced\b/) {
