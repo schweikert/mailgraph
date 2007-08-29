@@ -268,6 +268,14 @@ sub process_line($)
 			elsif($text =~ /^(?:[0-9A-Z]+: |NOQUEUE: )?reject: /) {
 				event($time, 'rejected');
 			}
+			elsif($text =~ /^(?:[0-9A-Z]+: |NOQUEUE: )?milter-reject: /) {
+				if($text =~ /Blocked by SpamAssassin/) {
+					event($time, 'spam');
+				}
+				else {
+					event($time, 'rejected');
+				}
+			}
 		}
 		elsif($prog eq 'error') {
 			if($text =~ /\bstatus=bounced\b/) {
