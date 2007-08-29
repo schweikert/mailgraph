@@ -2,6 +2,7 @@
 -----------------
 * --ignore-host can now be specified multiple times
 * update support for amavis-milter (Joachim de Groot)
+* update support for amavisd-new (Pawel Madej)
 
 1.13 (2007-03-28)
 -----------------

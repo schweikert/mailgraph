@@ -335,13 +335,15 @@ sub process_line($)
 	}
 	elsif($prog eq 'amavis' || $prog eq 'amavisd') {
 		if(   $text =~ /^\([\w-]+\) (Passed|Blocked) SPAM(?:MY)?\b/) {
-			event($time, 'spam'); # since amavisd-new-2004xxxx
+			if($text !~ /\btag2=/) { # ignore new per-recipient log entry (2.2.0)
+				event($time, 'spam'); # since amavisd-new-2004xxxx
+			}
 		}
 		elsif($text =~ /^\([\w-]+\) (Passed|Not-Delivered)\b.*\bquarantine spam/) {
 			event($time, 'spam'); # amavisd-new-20030616 and earlier
 		}
 		elsif($text =~ /^\([\w-]+\) (Passed |Blocked )?INFECTED\b/) {
-			if($text !~ /\btag2=/) { # ignore new per-recipient log entry (2.2.0)
+			if($text !~ /\btag2=/) {
 				event($time, 'virus');# Passed|Blocked inserted since 2004xxxx
 			}
 		}
@@ -350,12 +352,12 @@ sub process_line($)
 			       event($time, 'virus');
 			}
 		}
-#		elsif($text =~ /^\([\w-]+\) Passed|Blocked BAD-HEADER\b/) {
-#		       event($time, 'badh');
-#		}
 		elsif($text =~ /^Virus found\b/) {
 			event($time, 'virus');# AMaViS 0.3.12 and amavisd-0.1
 		}
+#		elsif($text =~ /^\([\w-]+\) Passed|Blocked BAD-HEADER\b/) {
+#		       event($time, 'badh');
+#		}
 	}
 	elsif($prog eq 'vagatefwd') {
 		# Vexira antivirus (old)
