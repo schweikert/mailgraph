@@ -15,7 +15,7 @@ tag:
 			echo "Commit your changes!"; \
 			exit 1; \
 		fi
-	@if svn ls $(SVNREPO)/tags/version-$(VERSION_MAJOR).$(VERSION_MINOR) >/dev/null; then \
+	@if svn ls $(SVNREPO)/tags/version-$(VERSION_MAJOR).$(VERSION_MINOR) >/dev/null 2>&1; then \
 		echo "Tag version-$(VERSION_MAJOR).$(VERSION_MINOR) already exists!"; \
 		exit 1; \
 	fi
