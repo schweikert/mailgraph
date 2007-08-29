@@ -341,6 +341,24 @@ sub process_line($)
 			event($time, 'rejected');
 		}
 	}
+	elsif($prog eq 'exim') {
+		if($text =~ /^[0-9a-zA-Z]{6}-[0-9a-zA-Z]{6}-[0-9a-zA-Z]{2} <= \S+/) {
+			event($time, 'received');
+		}
+		elsif($text =~ /^[0-9a-zA-Z]{6}-[0-9a-zA-Z]{6}-[0-9a-zA-Z]{2} => \S+/) {
+			event($time, 'sent');
+		}
+		elsif($text =~ / rejected because \S+ is in a black list at \S+/) {
+			if($opt{'rbl-is-spam'}) {
+				event($time, 'spam');
+			} else {
+				event($time, 'rejected');
+			}
+		}
+		elsif($text =~ / rejected RCPT \S+: (Sender verify failed|Unknown user)/) {
+			event($time, 'rejected');
+		}
+	}
 	elsif($prog eq 'amavis' || $prog eq 'amavisd') {
 		if(   $text =~ /^\([\w-]+\) (Passed|Blocked) SPAM(?:MY)?\b/) {
 			if($text !~ /\btag2=/) { # ignore new per-recipient log entry (2.2.0)
