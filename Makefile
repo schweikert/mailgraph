@@ -2,26 +2,24 @@ VERSION_MAJOR=1
 VERSION_MINOR=13
 VERSION=$(VERSION_MAJOR).$(VERSION_MINOR)
 FILES=mailgraph.cgi mailgraph-init README COPYING CHANGES
+SVNREPO=svn://svn.schweikert.ch/mailgraph
 D=mailgraph-$(VERSION)
 
 all: tag-build
 
-tag-build: tag merge build
+tag-build: tag build
 
 tag:
-	@svk st | grep 'M' >/dev/null; \
+	@svn st | grep 'M' >/dev/null; \
 		if [ $$? -eq 0 ]; then \
 			echo "Commit your changes!"; \
 			exit 1; \
 		fi
-	@if svk ls //mailgraph/tags/version-$(VERSION_MAJOR).$(VERSION_MINOR) >/dev/null; then \
+	@if svn ls $(SVNREPO)/tags/version-$(VERSION_MAJOR).$(VERSION_MINOR) >/dev/null; then \
 		echo "Tag version-$(VERSION_MAJOR).$(VERSION_MINOR) already exists!"; \
 		exit 1; \
 	fi
-	svk cp -m 'Tag version $(VERSION_MAJOR).$(VERSION_MINOR)' //mailgraph/trunk //mailgraph/tags/version-$(VERSION_MAJOR).$(VERSION_MINOR)
-
-merge:
-	svk smerge -I -f //mailgraph
+	svn cp -m 'Tag version $(VERSION_MAJOR).$(VERSION_MINOR)' $(SVNREPO)/trunk $(SVNREPO)/tags/version-$(VERSION_MAJOR).$(VERSION_MINOR)
 
 build:
 	# D/mailgraph.pl
