@@ -334,29 +334,23 @@ sub process_line($)
 		}
 	}
 	elsif($prog eq 'amavis' || $prog eq 'amavisd') {
-		if(   $text =~ /^\([0-9-]+\) (Passed|Blocked) SPAM(?:MY)?\b/) {
+		if(   $text =~ /^\([\w-]+\) (Passed|Blocked) SPAM(?:MY)?\b/) {
 			event($time, 'spam'); # since amavisd-new-2004xxxx
 		}
-		elsif($text =~ /^\([0-9-]+\) (Passed|Not-Delivered)\b.*\bquarantine spam/) {
+		elsif($text =~ /^\([\w-]+\) (Passed|Not-Delivered)\b.*\bquarantine spam/) {
 			event($time, 'spam'); # amavisd-new-20030616 and earlier
 		}
-		### UNCOMMENT IF YOU USE AMAVISD-NEW <= 20030616 WITHOUT QUARANTINE: 
-		#elsif($text =~ /^\([0-9-]+\) Passed, .*, Hits: (\d*\.\d*)/) {
-		#	if ($1 >= 5.0) {      # amavisd-new-20030616 without quarantine
-		#		event($time, 'spam');
-		#	}
-		#}
-		elsif($text =~ /^\([0-9-]+\) (Passed |Blocked )?INFECTED\b/) {
+		elsif($text =~ /^\([\w-]+\) (Passed |Blocked )?INFECTED\b/) {
 			if($text !~ /\btag2=/) { # ignore new per-recipient log entry (2.2.0)
 				event($time, 'virus');# Passed|Blocked inserted since 2004xxxx
 			}
 		}
-		elsif($text =~ /^\([0-9-]+\) (Passed |Blocked )?BANNED\b/) {
+		elsif($text =~ /^\([\w-]+\) (Passed |Blocked )?BANNED\b/) {
 			if($text !~ /\btag2=/) {
 			       event($time, 'virus');
 			}
 		}
-#		elsif($text =~ /^\([0-9-]+\) Passed|Blocked BAD-HEADER\b/) {
+#		elsif($text =~ /^\([\w-]+\) Passed|Blocked BAD-HEADER\b/) {
 #		       event($time, 'badh');
 #		}
 		elsif($text =~ /^Virus found\b/) {
