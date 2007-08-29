@@ -163,29 +163,7 @@ sub print_html()
 <title>Mail statistics for $host</title>
 <meta http-equiv="Refresh" content="300" />
 <meta http-equiv="Pragma" content="no-cache" />
-<style type="text/css">
-*     { margin: 0; padding: 0 }
-body  { width: 630px; background-color: white;
-	font-family: sans-serif;
-	font-size: 12pt;
-	margin: 5px }
-h1    { margin-top: 20px; margin-bottom: 30px;
-        text-align: center }
-h2    { background-color: #ddd;
-	padding: 2px 0 2px 4px }
-hr    { height: 1px;
-	border: 0;
-	border-top: 1px solid #aaa }
-table { border: 0px; width: 100% }
-img   { border: 0 }
-a     { text-decoration: none; color: #00e }
-a:hover { text-decoration: underline; }
-#jump    { margin: 0 0 10px 4px }
-#jump li { list-style: none; display: inline;
-           font-size: 90%; }
-#jump li:after            { content: "|"; }
-#jump li:last-child:after { content: ""; }
-</style>
+<link rel="stylesheet" href="mailgraph.css" type="text/css" />
 </head>
 <body>
 HEADER

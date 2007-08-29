@@ -1,5 +1,7 @@
 1.14 (2007-08-29)
 -----------------
+* added external css file: mailgraph.css (Patrick Nagel)
+  -> you will need to add this file to where mailgraph.cgi is
 * add support for SpamAssassin milter (Todd A. Green)
 * update support for amavis-milter (Joachim de Groot)
 * update support for amavisd-new (Pawel Madej)
