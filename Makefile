@@ -1,7 +1,7 @@
 VERSION_MAJOR=1
 VERSION_MINOR=14
 VERSION=$(VERSION_MAJOR).$(VERSION_MINOR)
-FILES=mailgraph.cgi mailgraph-init README COPYING CHANGES
+FILES=mailgraph.cgi mailgraph.css mailgraph-init README COPYING CHANGES
 SVNREPO=svn://svn.schweikert.ch/mailgraph
 D=mailgraph-$(VERSION)
 
