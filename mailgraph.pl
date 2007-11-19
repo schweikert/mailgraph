@@ -289,18 +289,16 @@ sub process_line($)
 		}
 	}
 	elsif($prog eq 'sendmail' or $prog eq 'sm-mta') {
-		if($text =~ /\bmailer=local\b/ ) {
+		if($text =~ /\bmailer=(?:local|cyrusv2)\b/ ) {
 			event($time, 'received');
 		}
                 elsif($text =~ /\bmailer=relay\b/) {
                         event($time, 'received');
                 }
-		elsif($text =~ /\bstat=Sent\b/ ) {
+		elsif($text =~ /\bstat=Sent\b/ &&
+		      $text =~ /\bmailer=esmtp\b/) {
 			event($time, 'sent');
 		}
-                elsif($text =~ /\bmailer=esmtp\b/ ) {
-                        event($time, 'sent');
-                }
 		elsif($text =~ /\bruleset=check_XS4ALL\b/ ) {
 			event($time, 'rejected');
 		}

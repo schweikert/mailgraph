@@ -1,3 +1,7 @@
+1.15 (UNRELEASED)
+-----------------
+* sendmail fixes (David Caldwell)
+
 1.14 (2007-08-29)
 -----------------
 * add external css file: mailgraph.css (Patrick Nagel)
