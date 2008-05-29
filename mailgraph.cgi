@@ -20,11 +20,13 @@ my $rrd = 'mailgraph.rrd'; # path to where the RRD database is
 my $rrd_virus = 'mailgraph_virus.rrd'; # path to where the Virus RRD database is
 my $tmp_dir = '/tmp/mailgraph'; # temporary directory where to store the images
 
+# note: the following ranges must match with the RRA ranges
+# created in mailgraph.pl, otherwise the totals won't match.
 my @graphs = (
 	{ title => 'Last Day',   seconds => 3600*24,        },
 	{ title => 'Last Week',  seconds => 3600*24*7,      },
-	{ title => 'Last Month', seconds => 3600*24*31,     },
-	{ title => 'Last Year',  seconds => 3600*24*365, },
+	{ title => 'Last Month', seconds => 3600*24*7*5,     },
+	{ title => 'Last Year',  seconds => 3600*24*7*5*12, },
 );
 
 my %color = (
