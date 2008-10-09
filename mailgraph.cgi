@@ -205,9 +205,9 @@ sub send_image($)
 		exit 1;
 	};
 
-	print "Content-type: image/png\n";
-	print "Content-length: ".((stat($file))[7])."\n";
-	print "\n";
+	print "Content-type: image/png\n" unless $ARGV[0];
+	print "Content-length: ".((stat($file))[7])."\n" unless $ARGV[0];
+	print "\n" unless $ARGV[0];
 	open(IMG, $file) or die;
 	my $data;
 	print $data while read(IMG, $data, 16384)>0;
@@ -222,7 +222,7 @@ sub main()
 	mkdir $tmp_dir, 0777 unless -d $tmp_dir;
 	mkdir "$tmp_dir/$uri", 0777 unless -d "$tmp_dir/$uri";
 
-	my $img = $ENV{QUERY_STRING};
+	my $img = $ARGV[0] || $ENV{QUERY_STRING};
 	if(defined $img and $img =~ /\S/) {
 		if($img =~ /^(\d+)-n$/) {
 			my $file = "$tmp_dir/$uri/mailgraph_$1.png";
