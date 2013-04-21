@@ -16,8 +16,12 @@ my $xpoints = 540;
 my $points_per_sample = 3;
 my $ypoints = 160;
 my $ypoints_err = 96;
+my $ypoints_postscreen = 96;
+my $ypoints_grey = 96;
 my $rrd = 'mailgraph.rrd'; # path to where the RRD database is
 my $rrd_virus = 'mailgraph_virus.rrd'; # path to where the Virus RRD database is
+my $rrd_postscreen = 'mailgraph_postscreen.rrd'; # path to where the Postscreen RRD database is
+my $rrd_greylist = 'mailgraph_greylist.rrd'; # path to where the Greylist RRD database is
 my $tmp_dir = '/tmp/mailgraph'; # temporary directory where to store the images
 
 # note: the following ranges must match with the RRA ranges
@@ -30,12 +34,18 @@ my @graphs = (
 );
 
 my %color = (
-	sent     => '000099', # rrggbb in hex
-	received => '009900',
-	rejected => 'AA0000', 
-	bounced  => '000000',
-	virus    => 'DDBB00',
-	spam     => '999999',
+	sent     	=> '000099', # rrggbb in hex
+	received 	=> '009900',
+	rejected 	=> 'AA0000', 
+	bounced  	=> '000000',
+	virus    	=> 'DDBB00',
+	spam     	=> '999999',
+        pspassnew       => '006400',
+        pswhiteveto     => 'FF5CED',
+        psrejected      => 'AA0000',
+        pspassold       => '5087FF',
+        greylisted 	=> '999999',
+	delayed 	=> '006400',
 );
 
 sub rrd_graph(@)
@@ -153,6 +163,86 @@ sub graph_err($$)
 	);
 }
 
+sub graph_postscreen($$)
+{
+        my ($range, $file) = @_;
+        my $step = $range*$points_per_sample/$xpoints;
+        rrd_graph($range, $file, $ypoints_postscreen,
+                "DEF:pspassold=$rrd_postscreen:pspassold:AVERAGE",
+                "DEF:mpspassold=$rrd_postscreen:pspassold:MAX",
+                "CDEF:rpspassold=pspassold,60,*",
+                "CDEF:dpspassold=pspassold,UN,0,pspassold,IF,$step,*",
+                "CDEF:spspassold=PREV,UN,dpspassold,PREV,IF,dpspassold,+",
+                "CDEF:rmpspassold=mpspassold,60,*",
+                "AREA:rpspassold#$color{pspassold}:PASS OLD       ",
+                'GPRINT:spspassold:MAX:total\: %8.0lf msgs',
+                'GPRINT:rpspassold:AVERAGE:avg\: %5.2lf msgs/min',
+                'GPRINT:rmpspassold:MAX:max\: %4.0lf msgs/min\l',
+
+                "DEF:pspassnew=$rrd_postscreen:pspassnew:AVERAGE",
+                "DEF:mpspassnew=$rrd_postscreen:pspassnew:MAX",
+                "CDEF:rpspassnew=pspassnew,60,*",
+                "CDEF:dpspassnew=pspassnew,UN,0,pspassnew,IF,$step,*",
+                "CDEF:spspassnew=PREV,UN,dpspassnew,PREV,IF,dpspassnew,+",
+                "CDEF:rmpspassnew=mpspassnew,60,*",
+                "LINE2:rpspassnew#$color{pspassnew}:PASS NEW       ",
+                'GPRINT:spspassnew:MAX:total\: %8.0lf msgs',
+                'GPRINT:rpspassnew:AVERAGE:avg\: %5.2lf msgs/min',
+                'GPRINT:rmpspassnew:MAX:max\: %4.0lf msgs/min\l',
+
+                "DEF:pswhiteveto=$rrd_postscreen:pswhiteveto:AVERAGE",
+                "DEF:mpswhiteveto=$rrd_postscreen:pswhiteveto:MAX",
+                "CDEF:rpswhiteveto=pswhiteveto,60,*",
+                "CDEF:dpswhiteveto=pswhiteveto,UN,0,pswhiteveto,IF,$step,*",
+                "CDEF:spswhiteveto=PREV,UN,dpswhiteveto,PREV,IF,dpswhiteveto,+",
+                "CDEF:rmpswhiteveto=mpswhiteveto,60,*",
+                "LINE2:rpswhiteveto#$color{pswhiteveto}:WHITELIST VETO ",
+                'GPRINT:spswhiteveto:MAX:total\: %8.0lf msgs',
+                'GPRINT:rpswhiteveto:AVERAGE:avg\: %5.2lf msgs/min',
+                'GPRINT:rmpswhiteveto:MAX:max\: %4.0lf msgs/min\l',
+
+                "DEF:psrejected=$rrd_postscreen:psrejected:AVERAGE",
+                "DEF:mpsrejected=$rrd_postscreen:psrejected:MAX",
+                "CDEF:rpsrejected=psrejected,60,*",
+                "CDEF:dpsrejected=psrejected,UN,0,psrejected,IF,$step,*",
+                "CDEF:spsrejected=PREV,UN,dpsrejected,PREV,IF,dpsrejected,+",
+                "CDEF:rmpsrejected=mpsrejected,60,*",
+                "LINE2:rpsrejected#$color{psrejected}:Rejected       ",
+                'GPRINT:spsrejected:MAX:total\: %8.0lf msgs',
+                'GPRINT:rpsrejected:AVERAGE:avg\: %5.2lf msgs/min',
+                'GPRINT:rmpsrejected:MAX:max\: %4.0lf msgs/min\l',
+        );
+}
+
+sub graph_grey($$)
+{
+        my ($range, $file) = @_;
+        my $step = $range*$points_per_sample/$xpoints;
+        rrd_graph($range, $file, $ypoints_grey,
+                "DEF:greylisted=$rrd_greylist:greylisted:AVERAGE",
+                "DEF:mgreylisted=$rrd_greylist:greylisted:MAX",
+                "CDEF:rgreylisted=greylisted,60,*",
+                "CDEF:dgreylisted=greylisted,UN,0,greylisted,IF,$step,*",
+                "CDEF:sgreylisted=PREV,UN,dgreylisted,PREV,IF,dgreylisted,+",
+                "CDEF:rmgreylisted=mgreylisted,60,*",
+                "AREA:rgreylisted#$color{greylisted}:Greylisted",
+                'GPRINT:sgreylisted:MAX:total\: %8.0lf msgs',
+                'GPRINT:rgreylisted:AVERAGE:avg\: %5.2lf msgs/min',
+                'GPRINT:rmgreylisted:MAX:max\: %4.0lf msgs/min\l',
+
+                "DEF:delayed=$rrd_greylist:delayed:AVERAGE",
+                "DEF:mdelayed=$rrd_greylist:delayed:MAX",
+                "CDEF:rdelayed=delayed,60,*",
+                "CDEF:ddelayed=delayed,UN,0,delayed,IF,$step,*",
+                "CDEF:sdelayed=PREV,UN,ddelayed,PREV,IF,ddelayed,+",
+                "CDEF:rmdelayed=mdelayed,60,*",
+                "LINE2:rdelayed#$color{delayed}:Delayed   ",
+                'GPRINT:sdelayed:MAX:total\: %8.0lf msgs',
+                'GPRINT:rdelayed:AVERAGE:avg\: %5.2lf msgs/min',
+                'GPRINT:rmdelayed:MAX:max\: %4.0lf msgs/min\l',
+        );
+}
+
 sub print_html()
 {
 	print "Content-Type: text/html\n\n";
@@ -182,6 +272,8 @@ HEADER
 		print "<h2 id=\"G$n\">$graphs[$n]{title}</h2>\n";
 		print "<p><img src=\"$scriptname?${n}-n\" alt=\"mailgraph\"/><br/>\n";
 		print "<img src=\"$scriptname?${n}-e\" alt=\"mailgraph\"/></p>\n";
+		print "<img src=\"$scriptname?${n}-p\" alt=\"mailgraph\"/></p>\n";
+		print "<img src=\"$scriptname?${n}-g\" alt=\"mailgraph\"/></p>\n";
 	}
 
 	print <<FOOTER;
@@ -232,6 +324,16 @@ sub main()
 		elsif($img =~ /^(\d+)-e$/) {
 			my $file = "$tmp_dir/$uri/mailgraph_$1_err.png";
 			graph_err($graphs[$1]{seconds}, $file);
+			send_image($file);
+		}
+                elsif($img =~ /^(\d+)-p$/) {
+                        my $file = "$tmp_dir/$uri/mailgraph_$1_postscreen.png";
+                        graph_postscreen($graphs[$1]{seconds}, $file);
+                        send_image($file);
+                }
+		elsif($img =~ /^(\d+)-g$/) {
+			my $file = "$tmp_dir/$uri/mailgraph_$1_grey.png";
+			graph_grey($graphs[$1]{seconds}, $file);
 			send_image($file);
 		}
 		else {

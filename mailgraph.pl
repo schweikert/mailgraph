@@ -34,9 +34,11 @@ my $daemon_rrd_dir = '/var/log';
 my $logfile;
 my $rrd = "mailgraph.rrd";
 my $rrd_virus = "mailgraph_virus.rrd";
+my $rrd_postscreen = "mailgraph_postscreen.rrd";
+my $rrd_greylist = "mailgraph_greylist.rrd";
 my $year;
 my $this_minute;
-my %sum = ( sent => 0, received => 0, bounced => 0, rejected => 0, virus => 0, spam => 0 );
+my %sum = ( sent => 0, received => 0, bounced => 0, rejected => 0, virus => 0, spam => 0, pspassnew => 0, pspassold => 0, pswhiteveto => 0, psrejected => 0,  greylisted => 0, delayed => 0 );
 my $rrd_inited=0;
 
 my %opt = ();
@@ -50,6 +52,12 @@ sub event_bounced($);
 sub event_rejected($);
 sub event_virus($);
 sub event_spam($);
+sub event_pspassnew($);
+sub event_pspassold($);
+sub event_pswhiteveto($);
+sub event_psrejected($);
+sub event_greylisted($);
+sub event_delayed($);
 sub init_rrd($);
 sub update($);
 
@@ -70,11 +78,14 @@ sub usage
 	print "  --daemon-log=FILE  write verbose-log to FILE instead of /var/log/mailgraph.log\n";
 	print "  --ignore-localhost ignore mail to/from localhost (used for virus scanner)\n";
 	print "  --ignore-host=HOST ignore mail to/from HOST regexp (used for virus scanner)\n";
-	print "  --only-mail-rrd    update only the mail rrd\n";
-	print "  --only-virus-rrd   update only the virus rrd\n";
-	print "  --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files\n";
+	print "  --no-mail-rrd      don't update the mail rrd\n";
+	print "  --no-virus-rrd     don't update the virus rrd\n";
+	print "  --no-ps-rrd	    don't update the postscreen rrd\n";
+        print "  --no-greylist-rrd  don't update the greylist rrd\n";
+	print "  --rrd-name=NAME    use NAME.rrd, NAME_virus.rrd, and so on for the rrd files\n";
 	print "  --rbl-is-spam      count rbl rejects as spam\n";
 	print "  --virbl-is-virus   count virbl rejects as viruses\n";
+	print "  --ps-as-reject     count postscreen rejects also as mail rejects\n";
 
 	exit;
 }
@@ -86,8 +97,8 @@ sub main
 		'year|y=i', 'host=s', 'verbose|v', 'daemon|d!',
 		'daemon_pid|daemon-pid=s', 'daemon_rrd|daemon-rrd=s',
 		'daemon_log|daemon-log=s', 'ignore-localhost!', 'ignore-host=s@',
-		'only-mail-rrd', 'only-virus-rrd', 'rrd_name|rrd-name=s',
-		'rbl-is-spam', 'virbl-is-virus'
+		'no-mail-rrd', 'no-virus-rrd', 'no-ps-rrd', 'no-greylist-rrd',
+		'rrd_name|rrd-name=s', 'rbl-is-spam', 'virbl-is-virus', 'ps-as-reject'
 		) or exit(1);
 	usage if $opt{help};
 
@@ -101,6 +112,8 @@ sub main
 	$daemon_rrd_dir = $opt{daemon_rrd} if defined $opt{daemon_rrd};
 	$rrd		= $opt{rrd_name}.".rrd" if defined $opt{rrd_name};
 	$rrd_virus	= $opt{rrd_name}."_virus.rrd" if defined $opt{rrd_name};
+	$rrd_postscreen = $opt{rrd_name}."_postscreen.rrd" if defined $opt{rrd_name};
+	$rrd_greylist   = $opt{rrd_name}."_greylist.rrd" if defined $opt{rrd_name};
 
 	# compile --ignore-host regexps
 	if(defined $opt{'ignore-host'}) {
@@ -177,7 +190,7 @@ sub init_rrd($)
 	my $year_steps = $month_steps*12;
 
 	# mail rrd
-	if(! -f $rrd and ! $opt{'only-virus-rrd'}) {
+	if(! -f $rrd and ! $opt{'no-mail-rrd'}) {
 		RRDs::create($rrd, '--start', $m, '--step', $rrdstep,
 				'DS:sent:ABSOLUTE:'.($rrdstep*2).':0:U',
 				'DS:recv:ABSOLUTE:'.($rrdstep*2).':0:U',
@@ -199,7 +212,7 @@ sub init_rrd($)
 	}
 
 	# virus rrd
-	if(! -f $rrd_virus and ! $opt{'only-mail-rrd'}) {
+	if(! -f $rrd_virus and ! $opt{'no-virus-rrd'}) {
 		RRDs::create($rrd_virus, '--start', $m, '--step', $rrdstep,
 				'DS:virus:ABSOLUTE:'.($rrdstep*2).':0:U',
 				'DS:spam:ABSOLUTE:'.($rrdstep*2).':0:U',
@@ -216,6 +229,47 @@ sub init_rrd($)
 	elsif(-f $rrd_virus and ! defined $rrd_virus) {
 		$this_minute = RRDs::last($rrd_virus) + $rrdstep;
 	}
+
+        # postscreen rrd
+        if(! -f $rrd_postscreen and ! $opt{'no-ps-rrd'}) {
+                RRDs::create($rrd_postscreen, '--start', $m, '--step', $rrdstep,
+                                'DS:pspassnew:ABSOLUTE:'.($rrdstep*2).':0:U',
+                                'DS:pspassold:ABSOLUTE:'.($rrdstep*2).':0:U',
+                                'DS:pswhiteveto:ABSOLUTE:'.($rrdstep*2).':0:U',
+                                'DS:psrejected:ABSOLUTE:'.($rrdstep*2).':0:U',
+                                "RRA:AVERAGE:0.5:$day_steps:$realrows",   # day
+                                "RRA:AVERAGE:0.5:$week_steps:$realrows",  # week
+                                "RRA:AVERAGE:0.5:$month_steps:$realrows", # month
+                                "RRA:AVERAGE:0.5:$year_steps:$realrows",  # year
+                                "RRA:MAX:0.5:$day_steps:$realrows",   # day
+                                "RRA:MAX:0.5:$week_steps:$realrows",  # week
+                                "RRA:MAX:0.5:$month_steps:$realrows", # month
+                                "RRA:MAX:0.5:$year_steps:$realrows",  # year
+                                );
+        }
+        elsif(-f $rrd_postscreen and ! defined $rrd_postscreen) {
+                $this_minute = RRDs::last($rrd_postscreen) + $rrdstep;
+        }
+
+        # greylist rrd
+        if(! -f $rrd_greylist and ! $opt{'no-greylist-rrd'}) {
+                        RRDs::create($rrd_greylist, '--start', $m, '--step', $rrdstep,
+                                'DS:greylisted:ABSOLUTE:'.($rrdstep*2).':0:U',
+                                'DS:delayed:ABSOLUTE:'.($rrdstep*2).':0:U',
+                                "RRA:AVERAGE:0.5:$day_steps:$realrows",   # day
+                                "RRA:AVERAGE:0.5:$week_steps:$realrows",  # week
+                                "RRA:AVERAGE:0.5:$month_steps:$realrows", # month
+                                "RRA:AVERAGE:0.5:$year_steps:$realrows",  # year
+                                "RRA:MAX:0.5:$day_steps:$realrows",   # day
+                                "RRA:MAX:0.5:$week_steps:$realrows",  # week
+                                "RRA:MAX:0.5:$month_steps:$realrows", # month
+                                "RRA:MAX:0.5:$year_steps:$realrows",  # year
+                                );
+                $this_minute = $m;
+        }
+        elsif(-f $rrd_greylist and ! defined $rrd_greylist) {
+                $this_minute = RRDs::last($rrd_greylist) + $rrdstep;
+        }
 
 	$rrd_inited=1;
 }
@@ -251,7 +305,7 @@ sub process_line($)
 			}
 		}
 		elsif($prog eq 'smtpd') {
-			if($text =~ /^[0-9A-Z]+: client=(\S+)/) {
+			if($text =~ /^[0-9A-Za-z]+: client=(\S+)/) {
 				my $client = $1;
 				return if $opt{'ignore-localhost'} and
 					$client =~ /\[127\.0\.0\.1\]$/;
@@ -259,16 +313,19 @@ sub process_line($)
 					$client =~ /$opt{'ignore-host'}/oi;
 				event($time, 'received');
 			}
-			elsif($opt{'virbl-is-virus'} and $text =~ /^(?:[0-9A-Z]+: |NOQUEUE: )?reject: .*: 554.* blocked using virbl.dnsbl.bit.nl/) {
+			elsif($opt{'virbl-is-virus'} and $text =~ /^(?:[0-9A-Za-z]+: |NOQUEUE: )?reject: .*: 554.* blocked using virbl.dnsbl.bit.nl/) {
 				event($time, 'virus');
 			}
-			elsif($opt{'rbl-is-spam'} and $text    =~ /^(?:[0-9A-Z]+: |NOQUEUE: )?reject: .*: 554.* blocked using/) {
+			elsif($opt{'rbl-is-spam'} and $text    =~ /^(?:[0-9A-Za-z]+: |NOQUEUE: )?reject: .*: 554.* blocked using/) {
 				event($time, 'spam');
 			}
-			elsif($text =~ /^(?:[0-9A-Z]+: |NOQUEUE: )?reject: /) {
+                        elsif($text =~ /Greylisted/) {
+                                event($time, 'greylisted');
+                        }
+			elsif($text =~ /^(?:[0-9A-Za-z]+: |NOQUEUE: )?reject: /) {
 				event($time, 'rejected');
 			}
-			elsif($text =~ /^(?:[0-9A-Z]+: |NOQUEUE: )?milter-reject: /) {
+			elsif($text =~ /^(?:[0-9A-Za-z]+: |NOQUEUE: )?milter-reject: /) {
 				if($text =~ /Blocked by SpamAssassin/) {
 					event($time, 'spam');
 				}
@@ -283,10 +340,50 @@ sub process_line($)
 			}
 		}
 		elsif($prog eq 'cleanup') {
-			if($text =~ /^[0-9A-Z]+: (?:reject|discard): /) {
+			if($text =~ /^[0-9A-Za-z]+: (?:reject|discard): /) {
 				event($time, 'rejected');
 			}
 		}
+                elsif($prog eq 'postscreen') {
+                        if($text =~ /NOQUEUE: reject: RCPT from .* /) {
+                                if($text =~ /Service unavailable; /) {
+					if($opt{'ps-as-reject'}) {
+	                                        event($time, 'rejected');
+						event($time, 'psrejected');
+					}
+					else {
+						event($time, 'psrejected');
+					}
+                                }
+                                elsif($text =~ /Protocol error; /) {
+                                        if($opt{'ps-as-reject'}) {
+                                                event($time, 'rejected');
+                                                event($time, 'psrejected');
+                                        }
+                                        else {
+                                                event($time, 'psrejected');
+                                        }
+                                }
+                                elsif($text =~ /too many connections /) {
+                                        if($opt{'ps-as-reject'}) {
+                                                event($time, 'rejected');
+                                                event($time, 'psrejected');
+                                        }
+                                        else {
+                                                event($time, 'psrejected');
+                                        }
+                                }
+                        }
+                        elsif($text =~ /PASS NEW /) {
+                                event($time, 'pspassnew');
+                        }
+                        elsif($text =~ /WHITELIST VETO /) {
+                                event($time, 'pswhiteveto');
+                        }
+                        elsif($text =~ /PASS OLD /) {
+                                event($time, 'pspassold');
+                        }
+                }
 	}
 	elsif($prog eq 'sendmail' or $prog eq 'sm-mta') {
 		if($text =~ /\bmailer=(?:local|cyrusv2)\b/ ) {
@@ -506,6 +603,16 @@ sub process_line($)
 			event($time, 'virus');
 		}
 	}
+        elsif($prog eq 'postgrey') {
+                # Old versions (up to 1.27)
+                if($text =~ /delayed [0-9]+ seconds: client/) {
+                        event($time, 'delayed');
+                }
+                # New versions (from 1.28)
+                if($text =~ /delay=[0-9]+/) {
+                        event($time, 'delayed');
+                }
+        }
 }
 
 sub event($$)
@@ -523,14 +630,18 @@ sub update($)
 	return 1 if $m == $this_minute;
 	return 0 if $m < $this_minute;
 
-	print "update $this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}:$sum{virus}:$sum{spam}\n" if $opt{verbose};
-	RRDs::update $rrd, "$this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}" unless $opt{'only-virus-rrd'};
-	RRDs::update $rrd_virus, "$this_minute:$sum{virus}:$sum{spam}" unless $opt{'only-mail-rrd'};
+	print "update $this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}:$sum{virus}:$sum{spam}:$sum{pspassnew}:$sum{pspassold}:$sum{pswhiteveto}:$sum{psrejected}:$sum{greylisted}:$sum{delayed}\n" if $opt{verbose};
+	RRDs::update $rrd, "$this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}" unless $opt{'no-mail-rrd'};
+	RRDs::update $rrd_virus, "$this_minute:$sum{virus}:$sum{spam}" unless $opt{'no-virus-rrd'};
+	RRDs::update $rrd_postscreen, "$this_minute:$sum{pspassnew}:$sum{pspassold}:$sum{pswhiteveto}:$sum{psrejected}" unless $opt{'no-ps-rrd'};
+	RRDs::update $rrd_greylist, "$this_minute:$sum{greylisted}:$sum{delayed}" unless $opt{'no-greylist-rrd'};
 	if($m > $this_minute+$rrdstep) {
 		for(my $sm=$this_minute+$rrdstep;$sm<$m;$sm+=$rrdstep) {
-			print "update $sm:0:0:0:0:0:0 (SKIP)\n" if $opt{verbose};
-			RRDs::update $rrd, "$sm:0:0:0:0" unless $opt{'only-virus-rrd'};
-			RRDs::update $rrd_virus, "$sm:0:0" unless $opt{'only-mail-rrd'};
+			print "update $sm:0:0:0:0:0:0:0:0:0:0:0:0 (SKIP)\n" if $opt{verbose};
+			RRDs::update $rrd, "$sm:0:0:0:0" unless $opt{'no-mail-rrd'};
+			RRDs::update $rrd_virus, "$sm:0:0" unless $opt{'no-virus-rrd'};
+			RRDs::update $rrd_postscreen, "$sm:0:0:0:0" unless $opt{'no-ps-rrd'};
+			RRDs::update $rrd_greylist, "$sm:0:0" unless $opt{'no-greylist-rrd'};
 		}
 	}
 	$this_minute = $m;
@@ -540,6 +651,12 @@ sub update($)
 	$sum{rejected}=0;
 	$sum{virus}=0;
 	$sum{spam}=0;
+        $sum{pspassnew}=0;
+        $sum{pspassold}=0;
+        $sum{pswhiteveto}=0;
+        $sum{psrejected}=0;
+        $sum{greylisted}=0;
+        $sum{delayed}=0;
 	return 1;
 }
 
@@ -572,11 +689,14 @@ B<mailgraph> [I<options>...]
  --daemon-log=FILE  write verbose-log to FILE instead of /var/log/mailgraph.log
  --ignore-localhost ignore mail to/from localhost (used for virus scanner)
  --ignore-host=HOST ignore mail to/from HOST regexp (used for virus scanner)
- --only-mail-rrd    update only the mail rrd
- --only-virus-rrd   update only the virus rrd
- --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files
+ --no-mail-rrd      don't update the mail rrd
+ --no-virus-rrd     don't update the virus rrd
+ --no-ps-rrd        don't update the postscreen rrd
+ --no-greylist-rrd  don't update the greylist rrd
+ --rrd-name=NAME    use NAME.rrd, NAME_virus.rrd, and so on for the rrd files
  --rbl-is-spam      count rbl rejects as spam
  --virbl-is-virus   count virbl rejects as viruses
+ --ps-as-reject     count postscreen rejects also as mail rejects
 
 =head1 DESCRIPTION
 

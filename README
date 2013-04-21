@@ -41,19 +41,29 @@ mailgraph is made of two scripts:
   DO NOT RUN IT WITH CRON!
 
   usage: mailgraph.pl [*options*]
-  
+
   -h, --help         display this help and exit
   -v, --verbose      be verbose about what you do
   -V, --version      output version information and exit
   -c, --cat          causes the logfile to be only read and not monitored
   -l, --logfile f    monitor logfile f instead of /var/log/syslog
+  -t, --logtype t    set logfile's type (default: syslog)
   -y, --year         starting year of the log file (default: current year)
       --host=HOST    use only entries for HOST (regexp) in syslog
   -d, --daemon       start in the background
   --daemon-pid=FILE  write PID to FILE instead of /var/run/mailgraph.pid
   --daemon-rrd=DIR   write RRDs to DIR instead of /var/log
   --daemon-log=FILE  write verbose-log to FILE instead of /var/log/mailgraph.log
-  --ignore-localhost ignore mail to/from localhost (used for virus scanner)\n";
+  --ignore-localhost ignore mail to/from localhost (used for virus scanner)
+  --ignore-host=HOST ignore mail to/from HOST regexp (used for virus scanner)
+  --no-mail-rrd      don't update the mail rrd
+  --no-virus-rrd     don't update the virus rrd
+  --no-ps-rrd        don't update the postscreen rrd
+  --no-greylist-rrd  don't update the greylist rrd
+  --rrd-name=NAME    use NAME.rrd, NAME_virus.rrd and so on for the rrd files
+  --rbl-is-spam      count rbl rejects as spam
+  --virbl-is-virus   count virbl rejects as viruses
+  --ps-as-reject     count postscreen rejects also as mail rejects
   
   If -c is not specified, mailgraph will monitor logfile for Postfix log entries
   in logfile (/var/log/syslog unless -l is specified).
