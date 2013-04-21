@@ -16,6 +16,8 @@ my $xpoints = 540;
 my $points_per_sample = 3;
 my $ypoints = 160;
 my $ypoints_err = 96;
+my $ypoints_postscreen = 96;
+my $ypoints_grey = 96;
 my $rrd = 'mailgraph.rrd'; # path to where the RRD database is
 my $rrd_virus = 'mailgraph_virus.rrd'; # path to where the Virus RRD database is
 my $rrd_postscreen = 'mailgraph_postscreen.rrd'; # path to where the Postscreen RRD database is
@@ -165,7 +167,7 @@ sub graph_postscreen($$)
 {
         my ($range, $file) = @_;
         my $step = $range*$points_per_sample/$xpoints;
-        rrd_graph($range, $file, $ypoints_err,
+        rrd_graph($range, $file, $ypoints_postscreen,
                 "DEF:pspassold=$rrd_postscreen:pspassold:AVERAGE",
                 "DEF:mpspassold=$rrd_postscreen:pspassold:MAX",
                 "CDEF:rpspassold=pspassold,60,*",
