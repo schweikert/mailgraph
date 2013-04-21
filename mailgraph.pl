@@ -78,7 +78,7 @@ sub usage
 	print "  --no-mail-rrd      don't update the mail rrd\n";
 	print "  --no-virus-rrd     don't update the virus rrd\n";
 	print "  --no-ps-rrd	    don't update the postscreen rrd\n";
-	print "  --rrd-name=NAME    use NAME.rrd, NAME_virus.rrd and NAME_postscreen.rrd for the rrd files\n";
+	print "  --rrd-name=NAME    use NAME.rrd, NAME_virus.rrd, and so on for the rrd files\n";
 	print "  --rbl-is-spam      count rbl rejects as spam\n";
 	print "  --virbl-is-virus   count virbl rejects as viruses\n";
 	print "  --ps-as-reject     count postscreen rejects also as mail rejects\n";
@@ -650,9 +650,10 @@ B<mailgraph> [I<options>...]
  --no-mail-rrd      don't update the mail rrd
  --no-virus-rrd     don't update the virus rrd
  --no-ps-rrd        don't update the postscreen rrd
- --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files
+ --rrd-name=NAME    use NAME.rrd, NAME_virus.rrd, and so on for the rrd files
  --rbl-is-spam      count rbl rejects as spam
  --virbl-is-virus   count virbl rejects as viruses
+ --ps-as-reject     count postscreen rejects also as mail rejects
 
 =head1 DESCRIPTION
 
