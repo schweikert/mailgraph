@@ -231,7 +231,7 @@ sub init_rrd($)
 	}
 
         # postscreen rrd
-        if(! -f $rrd_postscreen and ! ($opt{'no-ps-rrd'}) {
+        if(! -f $rrd_postscreen and ! $opt{'no-ps-rrd'}) {
                 RRDs::create($rrd_postscreen, '--start', $m, '--step', $rrdstep,
                                 'DS:pspassnew:ABSOLUTE:'.($rrdstep*2).':0:U',
                                 'DS:pspassold:ABSOLUTE:'.($rrdstep*2).':0:U',
