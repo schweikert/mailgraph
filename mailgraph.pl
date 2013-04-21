@@ -75,9 +75,9 @@ sub usage
 	print "  --daemon-log=FILE  write verbose-log to FILE instead of /var/log/mailgraph.log\n";
 	print "  --ignore-localhost ignore mail to/from localhost (used for virus scanner)\n";
 	print "  --ignore-host=HOST ignore mail to/from HOST regexp (used for virus scanner)\n";
-	print "  --only-mail-rrd    update only the mail rrd\n";
-	print "  --only-virus-rrd   update only the virus rrd\n";
-	print "  --only-ps-rrd	    update only the postscreen rrd\n";
+	print "  --no-mail-rrd      don't update the mail rrd\n";
+	print "  --no-virus-rrd     don't update the virus rrd\n";
+	print "  --no-ps-rrd	    don't update the postscreen rrd\n";
 	print "  --rrd-name=NAME    use NAME.rrd, NAME_virus.rrd and NAME_postscreen.rrd for the rrd files\n";
 	print "  --rbl-is-spam      count rbl rejects as spam\n";
 	print "  --virbl-is-virus   count virbl rejects as viruses\n";
@@ -93,7 +93,7 @@ sub main
 		'year|y=i', 'host=s', 'verbose|v', 'daemon|d!',
 		'daemon_pid|daemon-pid=s', 'daemon_rrd|daemon-rrd=s',
 		'daemon_log|daemon-log=s', 'ignore-localhost!', 'ignore-host=s@',
-		'only-mail-rrd', 'only-virus-rrd', 'only-ps-rrd', 'rrd_name|rrd-name=s',
+		'no-mail-rrd', 'no-virus-rrd', 'no-ps-rrd', 'rrd_name|rrd-name=s',
 		'rbl-is-spam', 'virbl-is-virus', 'ps-as-reject'
 		) or exit(1);
 	usage if $opt{help};
@@ -185,7 +185,7 @@ sub init_rrd($)
 	my $year_steps = $month_steps*12;
 
 	# mail rrd
-	if(! -f $rrd and ! ($opt{'only-virus-rrd'} or ! $opt{'only-ps-rrd'})) {
+	if(! -f $rrd and ! $opt{'no-mail-rrd'}) {
 		RRDs::create($rrd, '--start', $m, '--step', $rrdstep,
 				'DS:sent:ABSOLUTE:'.($rrdstep*2).':0:U',
 				'DS:recv:ABSOLUTE:'.($rrdstep*2).':0:U',
@@ -207,7 +207,7 @@ sub init_rrd($)
 	}
 
 	# virus rrd
-	if(! -f $rrd_virus and ! ($opt{'only-mail-rrd'} or ! $opt{'only-ps-rrd'})) {
+	if(! -f $rrd_virus and ! $opt{'no-virus-rrd'}) {
 		RRDs::create($rrd_virus, '--start', $m, '--step', $rrdstep,
 				'DS:virus:ABSOLUTE:'.($rrdstep*2).':0:U',
 				'DS:spam:ABSOLUTE:'.($rrdstep*2).':0:U',
@@ -226,7 +226,7 @@ sub init_rrd($)
 	}
 
         # postscreen rrd
-        if(! -f $rrd_postscreen and ! ($opt{'only-mail-rrd'} or ! $opt{'only-virus-rrd'})) {
+        if(! -f $rrd_postscreen and ! ($opt{'no-ps-rrd'}) {
                 RRDs::create($rrd_postscreen, '--start', $m, '--step', $rrdstep,
                                 'DS:pspassnew:ABSOLUTE:'.($rrdstep*2).':0:U',
                                 'DS:pspassold:ABSOLUTE:'.($rrdstep*2).':0:U',
@@ -593,15 +593,15 @@ sub update($)
 	return 0 if $m < $this_minute;
 
 	print "update $this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}:$sum{virus}:$sum{spam}:$sum{pspassnew}:$sum{pspassold}:$sum{pswhiteveto}:$sum{psrejected}\n" if $opt{verbose};
-	RRDs::update $rrd, "$this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}" unless ($opt{'only-virus-rrd'} or $opt{'only-ps-rrd'});
-	RRDs::update $rrd_virus, "$this_minute:$sum{virus}:$sum{spam}" unless ($opt{'only-mail-rrd'} or $opt{'only-ps-rrd'});
-	RRDs::update $rrd_postscreen, "$this_minute:$sum{pspassnew}:$sum{pspassold}:$sum{pswhiteveto}:$sum{psrejected}" unless ($opt{'only-mail-rrd'} or $opt{'only-virus-rrd'});
+	RRDs::update $rrd, "$this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}" unless $opt{'no-mail-rrd'};
+	RRDs::update $rrd_virus, "$this_minute:$sum{virus}:$sum{spam}" unless $opt{'no-virus-rrd'};
+	RRDs::update $rrd_postscreen, "$this_minute:$sum{pspassnew}:$sum{pspassold}:$sum{pswhiteveto}:$sum{psrejected}" unless $opt{'no-ps-rrd'};
 	if($m > $this_minute+$rrdstep) {
 		for(my $sm=$this_minute+$rrdstep;$sm<$m;$sm+=$rrdstep) {
 			print "update $sm:0:0:0:0:0:0:0:0:0:0 (SKIP)\n" if $opt{verbose};
-			RRDs::update $rrd, "$sm:0:0:0:0" unless ($opt{'only-virus-rrd'} or $opt{'only-ps-rrd'});
-			RRDs::update $rrd_virus, "$sm:0:0" unless ($opt{'only-mail-rrd'} or $opt{'only-ps-rrd'});
-			RRDs::update $rrd_postscreen, "$sm:0:0:0:0" unless ($opt{'only-mail-rrd'} or $opt{'only-virus-rrd'});
+			RRDs::update $rrd, "$sm:0:0:0:0" unless $opt{'no-mail-rrd'};
+			RRDs::update $rrd_virus, "$sm:0:0" unless $opt{'no-virus-rrd'};
+			RRDs::update $rrd_postscreen, "$sm:0:0:0:0" unless $opt{'no-ps-rrd'};
 		}
 	}
 	$this_minute = $m;
@@ -647,8 +647,9 @@ B<mailgraph> [I<options>...]
  --daemon-log=FILE  write verbose-log to FILE instead of /var/log/mailgraph.log
  --ignore-localhost ignore mail to/from localhost (used for virus scanner)
  --ignore-host=HOST ignore mail to/from HOST regexp (used for virus scanner)
- --only-mail-rrd    update only the mail rrd
- --only-virus-rrd   update only the virus rrd
+ --no-mail-rrd      don't update the mail rrd
+ --no-virus-rrd     don't update the virus rrd
+ --no-ps-rrd        don't update the postscreen rrd
  --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files
  --rbl-is-spam      count rbl rejects as spam
  --virbl-is-virus   count virbl rejects as viruses

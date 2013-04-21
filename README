@@ -56,9 +56,9 @@ mailgraph is made of two scripts:
   --daemon-log=FILE  write verbose-log to FILE instead of /var/log/mailgraph.log
   --ignore-localhost ignore mail to/from localhost (used for virus scanner)
   --ignore-host=HOST ignore mail to/from HOST regexp (used for virus scanner)
-  --only-mail-rrd    update only the mail rrd
-  --only-virus-rrd   update only the virus rrd
-  --only-ps-rrd      update only the postscreen rrd
+  --no-mail-rrd      don't update the mail rrd
+  --no-virus-rrd     don't update the virus rrd
+  --no-ps-rrd        don't update the postscreen rrd
   --rrd-name=NAME    use NAME.rrd, NAME_virus.rrd and NAME_postscreen.rrd for 
 		     the rrd files
   --rbl-is-spam      count rbl rejects as spam
