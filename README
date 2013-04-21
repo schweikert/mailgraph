@@ -59,6 +59,7 @@ mailgraph is made of two scripts:
   --no-mail-rrd      don't update the mail rrd
   --no-virus-rrd     don't update the virus rrd
   --no-ps-rrd        don't update the postscreen rrd
+  --no-greylist-rrd  don't update the greylist rrd
   --rrd-name=NAME    use NAME.rrd, NAME_virus.rrd and so on for the rrd files
   --rbl-is-spam      count rbl rejects as spam
   --virbl-is-virus   count virbl rejects as viruses

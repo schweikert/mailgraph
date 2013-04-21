@@ -19,6 +19,7 @@ my $ypoints_err = 96;
 my $rrd = 'mailgraph.rrd'; # path to where the RRD database is
 my $rrd_virus = 'mailgraph_virus.rrd'; # path to where the Virus RRD database is
 my $rrd_postscreen = 'mailgraph_postscreen.rrd'; # path to where the Postscreen RRD database is
+my $rrd_greylist = 'mailgraph_greylist.rrd'; # path to where the Greylist RRD database is
 my $tmp_dir = '/tmp/mailgraph'; # temporary directory where to store the images
 
 # note: the following ranges must match with the RRA ranges
@@ -41,6 +42,8 @@ my %color = (
         pswhiteveto     => 'FF5CED',
         psrejected      => 'AA0000',
         pspassold       => '5087FF',
+        greylisted 	=> '999999',
+	delayed 	=> '006400',
 );
 
 sub rrd_graph(@)
@@ -209,6 +212,34 @@ sub graph_postscreen($$)
         );
 }
 
+sub graph_grey($$)
+{
+        my ($range, $file) = @_;
+        my $step = $range*$points_per_sample/$xpoints;
+        rrd_graph($range, $file, $ypoints_grey,
+                "DEF:greylisted=$rrd_greylist:greylisted:AVERAGE",
+                "DEF:mgreylisted=$rrd_greylist:greylisted:MAX",
+                "CDEF:rgreylisted=greylisted,60,*",
+                "CDEF:dgreylisted=greylisted,UN,0,greylisted,IF,$step,*",
+                "CDEF:sgreylisted=PREV,UN,dgreylisted,PREV,IF,dgreylisted,+",
+                "CDEF:rmgreylisted=mgreylisted,60,*",
+                "AREA:rgreylisted#$color{greylisted}:Greylisted",
+                'GPRINT:sgreylisted:MAX:total\: %8.0lf msgs',
+                'GPRINT:rgreylisted:AVERAGE:avg\: %5.2lf msgs/min',
+                'GPRINT:rmgreylisted:MAX:max\: %4.0lf msgs/min\l',
+
+                "DEF:delayed=$rrd_greylist:delayed:AVERAGE",
+                "DEF:mdelayed=$rrd_greylist:delayed:MAX",
+                "CDEF:rdelayed=delayed,60,*",
+                "CDEF:ddelayed=delayed,UN,0,delayed,IF,$step,*",
+                "CDEF:sdelayed=PREV,UN,ddelayed,PREV,IF,ddelayed,+",
+                "CDEF:rmdelayed=mdelayed,60,*",
+                "LINE2:rdelayed#$color{delayed}:Delayed   ",
+                'GPRINT:sdelayed:MAX:total\: %8.0lf msgs',
+                'GPRINT:rdelayed:AVERAGE:avg\: %5.2lf msgs/min',
+                'GPRINT:rmdelayed:MAX:max\: %4.0lf msgs/min\l',
+        );
+}
 
 sub print_html()
 {
@@ -240,6 +271,7 @@ HEADER
 		print "<p><img src=\"$scriptname?${n}-n\" alt=\"mailgraph\"/><br/>\n";
 		print "<img src=\"$scriptname?${n}-e\" alt=\"mailgraph\"/></p>\n";
 		print "<img src=\"$scriptname?${n}-p\" alt=\"mailgraph\"/></p>\n";
+		print "<img src=\"$scriptname?${n}-g\" alt=\"mailgraph\"/></p>\n";
 	}
 
 	print <<FOOTER;
@@ -297,6 +329,11 @@ sub main()
                         graph_postscreen($graphs[$1]{seconds}, $file);
                         send_image($file);
                 }
+		elsif($img =~ /^(\d+)-g$/) {
+			my $file = "$tmp_dir/$uri/mailgraph_$1_grey.png";
+			graph_grey($graphs[$1]{seconds}, $file);
+			send_image($file);
+		}
 		else {
 			die "ERROR: invalid argument\n";
 		}
