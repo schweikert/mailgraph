@@ -319,7 +319,7 @@ sub process_line($)
                 elsif($prog eq 'postscreen') {
                         if($text =~ /NOQUEUE: reject: RCPT from .* /) {
                                 if($text =~ /Service unavailable; /) {
-					if($opt{'ps-as-reject'} {
+					if($opt{'ps-as-reject'}) {
 	                                        event($time, 'rejected');
 						event($time, 'psrejected');
 					}
@@ -328,7 +328,7 @@ sub process_line($)
 					}
                                 }
                                 elsif($text =~ /Protocol error; /) {
-                                        if($opt{'ps-as-reject'} {
+                                        if($opt{'ps-as-reject'}) {
                                                 event($time, 'rejected');
                                                 event($time, 'psrejected');
                                         }
@@ -337,7 +337,7 @@ sub process_line($)
                                         }
                                 }
                                 elsif($text =~ /too many connections /) {
-                                        if($opt{'ps-as-reject'} {
+                                        if($opt{'ps-as-reject'}) {
                                                 event($time, 'rejected');
                                                 event($time, 'psrejected');
                                         }
