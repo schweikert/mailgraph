@@ -78,7 +78,7 @@ sub usage
 	print "  --only-mail-rrd    update only the mail rrd\n";
 	print "  --only-virus-rrd   update only the virus rrd\n";
 	print "  --only-ps-rrd	    update only the postscreen rrd\n";
-	print "  --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files\n";
+	print "  --rrd-name=NAME    use NAME.rrd, NAME_virus.rrd and NAME_postscreen.rrd for the rrd files\n";
 	print "  --rbl-is-spam      count rbl rejects as spam\n";
 	print "  --virbl-is-virus   count virbl rejects as viruses\n";
 	print "  --ps-as-reject     count postscreen rejects also as mail rejects\n";
