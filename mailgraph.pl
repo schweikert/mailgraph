@@ -251,7 +251,7 @@ sub process_line($)
 			}
 		}
 		elsif($prog eq 'smtpd') {
-			if($text =~ /^[0-9A-Z]+: client=(\S+)/) {
+			if($text =~ /^[0-9A-Za-z]+: client=(\S+)/) {
 				my $client = $1;
 				return if $opt{'ignore-localhost'} and
 					$client =~ /\[127\.0\.0\.1\]$/;
@@ -259,16 +259,16 @@ sub process_line($)
 					$client =~ /$opt{'ignore-host'}/oi;
 				event($time, 'received');
 			}
-			elsif($opt{'virbl-is-virus'} and $text =~ /^(?:[0-9A-Z]+: |NOQUEUE: )?reject: .*: 554.* blocked using virbl.dnsbl.bit.nl/) {
+			elsif($opt{'virbl-is-virus'} and $text =~ /^(?:[0-9A-Za-z]+: |NOQUEUE: )?reject: .*: 554.* blocked using virbl.dnsbl.bit.nl/) {
 				event($time, 'virus');
 			}
-			elsif($opt{'rbl-is-spam'} and $text    =~ /^(?:[0-9A-Z]+: |NOQUEUE: )?reject: .*: 554.* blocked using/) {
+			elsif($opt{'rbl-is-spam'} and $text    =~ /^(?:[0-9A-Za-z]+: |NOQUEUE: )?reject: .*: 554.* blocked using/) {
 				event($time, 'spam');
 			}
-			elsif($text =~ /^(?:[0-9A-Z]+: |NOQUEUE: )?reject: /) {
+			elsif($text =~ /^(?:[0-9A-Za-z]+: |NOQUEUE: )?reject: /) {
 				event($time, 'rejected');
 			}
-			elsif($text =~ /^(?:[0-9A-Z]+: |NOQUEUE: )?milter-reject: /) {
+			elsif($text =~ /^(?:[0-9A-Za-z]+: |NOQUEUE: )?milter-reject: /) {
 				if($text =~ /Blocked by SpamAssassin/) {
 					event($time, 'spam');
 				}
@@ -283,7 +283,7 @@ sub process_line($)
 			}
 		}
 		elsif($prog eq 'cleanup') {
-			if($text =~ /^[0-9A-Z]+: (?:reject|discard): /) {
+			if($text =~ /^[0-9A-Za-z]+: (?:reject|discard): /) {
 				event($time, 'rejected');
 			}
 		}
