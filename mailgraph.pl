@@ -73,6 +73,7 @@ sub usage
 	print "  --only-mail-rrd    update only the mail rrd\n";
 	print "  --only-virus-rrd   update only the virus rrd\n";
 	print "  --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files\n";
+	print "  --lmtp-is-smtp     treat LMTP as SMTP\n";
 	print "  --rbl-is-spam      count rbl rejects as spam\n";
 	print "  --virbl-is-virus   count virbl rejects as viruses\n";
 
@@ -87,7 +88,7 @@ sub main
 		'daemon_pid|daemon-pid=s', 'daemon_rrd|daemon-rrd=s',
 		'daemon_log|daemon-log=s', 'ignore-localhost!', 'ignore-host=s@',
 		'only-mail-rrd', 'only-virus-rrd', 'rrd_name|rrd-name=s',
-		'rbl-is-spam', 'virbl-is-virus'
+		'lmtp-is-smtp', 'rbl-is-spam', 'virbl-is-virus'
 		) or exit(1);
 	usage if $opt{help};
 
@@ -229,7 +230,7 @@ sub process_line($)
 
 	if($prog =~ /^postfix\/(.*)/) {
 		my $prog = $1;
-		if($prog eq 'smtp') {
+		if($prog eq 'smtp' or ($opt{'lmtp-is-smtp'} and $prog eq 'lmtp')) {
 			if($text =~ /\bstatus=sent\b/) {
 				return if $opt{'ignore-localhost'} and
 					$text =~ /\brelay=[^\s\[]*\[127\.0\.0\.1\]/;
