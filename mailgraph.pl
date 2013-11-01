@@ -288,6 +288,19 @@ sub process_line($)
 				event($time, 'rejected');
 			}
 		}
+		elsif($prog eq 'postscreen') {
+			if($text =~ /NOQUEUE: reject: RCPT from .* /) {
+				if($text =~ /Service unavailable; /) {
+					event($time, 'rejected');
+				}
+				elsif($text =~ /Protocol error; /) {
+					event($time, 'rejected');
+				}
+				elsif($text =~ /too many connections /) {
+					event($time, 'rejected');
+				}
+			}
+		}
 	}
 	elsif($prog eq 'sendmail' or $prog eq 'sm-mta') {
 		if($text =~ /\bmailer=(?:local|cyrusv2)\b/ ) {
