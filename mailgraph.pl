@@ -4,6 +4,7 @@
 # copyright (c) 2000-2007 ETH Zurich
 # copyright (c) 2000-2007 David Schweikert <david@schweikert.ch>
 # released under the GNU General Public License
+# with dkim-, dmarc, spf-patch Sebastian van de Meer <kernel-error@kernel-error.de>
 
 ## EMBED(/home/dws/checkouts/dws/sw/Parse-Syslog/lib/Parse/Syslog.pm)
 
@@ -36,7 +37,7 @@ my $rrd = "mailgraph.rrd";
 my $rrd_virus = "mailgraph_virus.rrd";
 my $year;
 my $this_minute;
-my %sum = ( sent => 0, received => 0, bounced => 0, rejected => 0, virus => 0, spam => 0 );
+my %sum = ( sent => 0, received => 0, bounced => 0, rejected => 0, spfnone => 0, spffail => 0, spfpass => 0, dmarcnone => 0, dmarcfail => 0, dmarcpass => 0, dkimnone => 0, dkimfail => 0, dkimpass => 0, virus => 0, spam => 0, greylisted => 0, delayed => 0);
 my $rrd_inited=0;
 
 my %opt = ();
@@ -50,6 +51,15 @@ sub event_bounced($);
 sub event_rejected($);
 sub event_virus($);
 sub event_spam($);
+sub event_spfnone($);
+sub event_spffail($);
+sub event_spfpass($);
+sub event_dmarcnone($);
+sub event_dmarcfail($);
+sub event_dmarcpass($);
+sub event_dkimnone($);
+sub event_dkimfail($);
+sub event_dkimpass($);
 sub init_rrd($);
 sub update($);
 
@@ -184,6 +194,15 @@ sub init_rrd($)
 				'DS:recv:ABSOLUTE:'.($rrdstep*2).':0:U',
 				'DS:bounced:ABSOLUTE:'.($rrdstep*2).':0:U',
 				'DS:rejected:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:spfnone:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:spffail:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:spfpass:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:dmarcnone:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:dmarcfail:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:dmarcpass:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:dkimnone:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:dkimfail:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:dkimpass:ABSOLUTE:'.($rrdstep*2).':0:U',
 				"RRA:AVERAGE:0.5:$day_steps:$realrows",   # day
 				"RRA:AVERAGE:0.5:$week_steps:$realrows",  # week
 				"RRA:AVERAGE:0.5:$month_steps:$realrows", # month
@@ -246,6 +265,17 @@ sub process_line($)
 				event($time, 'bounced');
 			}
 		}
+		elsif ($prog eq 'policy-spf') {
+			if ($text =~ /Received-SPF: none/) {
+			event($time, 'spfnone');
+			}
+			elsif($text =~ /Received-SPF: pass/) {
+				event($time, 'spfpass');
+			}
+			elsif($text =~ /Received-SPF:/) {
+				event($time, 'spffail');
+			}
+		}
 		elsif($prog eq 'local') {
 			if($text =~ /\bstatus=bounced\b/) {
 				event($time, 'bounced');
@@ -306,11 +336,11 @@ sub process_line($)
 		if($text =~ /\bmailer=(?:local|cyrusv2)\b/ ) {
 			event($time, 'received');
 		}
-                elsif($text =~ /\bmailer=relay\b/) {
-                        event($time, 'received');
-                }
+				elsif($text =~ /\bmailer=relay\b/) {
+						event($time, 'received');
+				}
 		elsif($text =~ /\bstat=Sent\b/ &&
-		      $text =~ /\bmailer=esmtp\b/) {
+			  $text =~ /\bmailer=esmtp\b/) {
 			event($time, 'sent');
 		}
 		elsif($text =~ /\bruleset=check_XS4ALL\b/ ) {
@@ -322,9 +352,9 @@ sub process_line($)
 		elsif($text =~ /\bruleset=check_rcpt\b/ ) {
 			event($time, 'rejected');
 		}
-                elsif($text =~ /\bstat=virus\b/ ) {
-                        event($time, 'virus');
-                }
+				elsif($text =~ /\bstat=virus\b/ ) {
+						event($time, 'virus');
+				}
 		elsif($text =~ /\bruleset=check_relay\b/ ) {
 			if (($opt{'virbl-is-virus'}) and ($text =~ /\bivirbl\b/ )) {
 				event($time, 'virus');
@@ -387,7 +417,7 @@ sub process_line($)
 		}
 		elsif($text =~ /^\([\w-]+\) (Passed |Blocked )?BANNED\b/) {
 			if($text !~ /\btag2=/) {
-			       event($time, 'virus');
+				   event($time, 'virus');
 			}
 		}
 		elsif($text =~ /^Virus found\b/) {
@@ -496,6 +526,28 @@ sub process_line($)
 			event($time, 'virus');
 		}
 	}
+	elsif ($prog eq 'opendmarc') {
+		if ($text =~ /pass/) {
+			event($time, 'dmarcpass');
+		}
+		elsif($text =~ /none/) {
+			event($time, 'dmarcnone');
+		}
+		elsif($text =~ /fail/) {
+			event($time, 'dmarcfail');
+		}
+	}
+	elsif ($prog eq 'opendkim') {
+		if ($text =~ /DKIM verification successful/) {
+			event($time, 'dkimpass');
+		}
+		elsif($text =~ /no signature data/) {
+			event($time, 'dkimnone');
+		}
+		elsif($text =~ /bad signature data/) {
+			event($time, 'dkimfail');
+		}
+	}
 	elsif($prog eq 'avmilter') {
 		# AntiVir Milter
 		if($text =~ /^Alert!/) {
@@ -537,13 +589,13 @@ sub update($)
 	return 1 if $m == $this_minute;
 	return 0 if $m < $this_minute;
 
-	print "update $this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}:$sum{virus}:$sum{spam}\n" if $opt{verbose};
-	RRDs::update $rrd, "$this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}" unless $opt{'only-virus-rrd'};
+	print "update $this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}:$sum{spfnone}:$sum{spffail}:$sum{spfpass}:$sum{dmarcnone}:$sum{dmarcfail}:$sum{dmarcpass}:$sum{dkimnone}:$sum{dkimfail}:$sum{dkimpass}:$sum{virus}:$sum{spam}:$sum{greylisted}:$sum{delayed}\n" if $opt{verbose};
+	RRDs::update $rrd, "$this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}:$sum{spfnone}:$sum{spffail}:$sum{spfpass}:$sum{dmarcnone}:$sum{dmarcfail}:$sum{dmarcpass}:$sum{dkimnone}:$sum{dkimfail}:$sum{dkimpass}" unless $opt{'no-mail-rrd'};
 	RRDs::update $rrd_virus, "$this_minute:$sum{virus}:$sum{spam}" unless $opt{'only-mail-rrd'};
 	if($m > $this_minute+$rrdstep) {
 		for(my $sm=$this_minute+$rrdstep;$sm<$m;$sm+=$rrdstep) {
-			print "update $sm:0:0:0:0:0:0 (SKIP)\n" if $opt{verbose};
-			RRDs::update $rrd, "$sm:0:0:0:0" unless $opt{'only-virus-rrd'};
+			print "update $sm:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0 (SKIP)\n" if $opt{verbose};
+			RRDs::update $rrd, "$sm:0:0:0:0:0:0:0:0:0:0:0:0:0" unless $opt{'no-mail-rrd'};
 			RRDs::update $rrd_virus, "$sm:0:0" unless $opt{'only-mail-rrd'};
 		}
 	}
@@ -552,6 +604,15 @@ sub update($)
 	$sum{received}=0;
 	$sum{bounced}=0;
 	$sum{rejected}=0;
+	$sum{spfnone}=0;
+	$sum{spffail}=0;
+	$sum{spfpass}=0;
+	$sum{dmarcnone}=0;
+	$sum{dmarcfail}=0;
+	$sum{dmarcpass}=0;
+	$sum{dkimnone}=0;
+	$sum{dkimfail}=0;
+	$sum{dkimpass}=0;
 	$sum{virus}=0;
 	$sum{spam}=0;
 	return 1;
@@ -569,9 +630,9 @@ mailgraph.pl - rrdtool frontend for mail statistics
 
 B<mailgraph> [I<options>...]
 
-     --man          show man-page and exit
+	 --man          show man-page and exit
  -h, --help         display this help and exit
-     --version      output version information and exit
+	 --version      output version information and exit
  -h, --help         display this help and exit
  -v, --verbose      be verbose about what you do
  -V, --version      output version information and exit
@@ -579,7 +640,7 @@ B<mailgraph> [I<options>...]
  -l, --logfile f    monitor logfile f instead of /var/log/syslog
  -t, --logtype t    set logfile's type (default: syslog)
  -y, --year         starting year of the log file (default: current year)
-     --host=HOST    use only entries for HOST (regexp) in syslog
+	 --host=HOST    use only entries for HOST (regexp) in syslog
  -d, --daemon       start in the background
  --daemon-pid=FILE  write PID to FILE instead of /var/run/mailgraph.pid
  --daemon-rrd=DIR   write RRDs to DIR instead of /var/log
