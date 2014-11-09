@@ -97,7 +97,6 @@ sub main
 		'year|y=i', 'host=s', 'verbose|v', 'daemon|d!',
 		'daemon_pid|daemon-pid=s', 'daemon_rrd|daemon-rrd=s',
 		'daemon_log|daemon-log=s', 'ignore-localhost!', 'ignore-host=s@',
-		'no-mail-rrd', 'no-virus-rrd', 'no-greylist-rrd', 'rrd_name|rrd-name=s',
 		'no-mail-rrd', 'no-virus-rrd', 'no-greylist-rrd', 'no-dane-rrd', 'rrd_name|rrd-name=s',
 		'lmtp-is-smtp', 'rbl-is-spam', 'virbl-is-virus'
 		) or exit(1);
