@@ -236,7 +236,7 @@ sub process_line($)
 					$text =~ /\brelay=[^\s\[]*\[127\.0\.0\.1\]/;
 				if(defined $opt{'ignore-host-re'}) {
 					for my $ih (@{$opt{'ignore-host-re'}}) {
-						warn "MATCH! $text\n" if $text =~ $ih;
+						warn "Ignore receiving host! $text\n" if $text =~ $ih;
 						return if $text =~ $ih;
 					}
 				}
@@ -256,8 +256,16 @@ sub process_line($)
 				my $client = $1;
 				return if $opt{'ignore-localhost'} and
 					$client =~ /\[127\.0\.0\.1\]$/;
-				return if $opt{'ignore-host'} and
-					$client =~ /$opt{'ignore-host'}/oi;
+				if(defined $opt{'ignore-host'}) {
+					#for my $ih (@{$opt{'ignore-host'}}) {
+					#	warn "Ignore sending host! $client\n" if $client =~ /$ih/i;
+					#	return if $client =~ /$ih/i;
+					#}
+					if( grep { $client =~ /$_/i } @{$opt{'ignore-host'}} ) {
+						warn "Ignore sending host! $client\n";
+						return;
+					}
+				}
 				event($time, 'received');
 			}
 			elsif($opt{'virbl-is-virus'} and $text =~ /^(?:[0-9A-Za-z]+: |NOQUEUE: )?reject: .*: 554.* blocked using virbl.dnsbl.bit.nl/) {

@@ -1,3 +1,7 @@
+
+* --ignore-host fixes (Immo Goltz)
+
+
 1.15 (UNRELEASED)
 -----------------
 * sendmail fixes (David Caldwell)
