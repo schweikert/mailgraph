@@ -19,7 +19,7 @@ use Getopt::Long;
 use POSIX 'setsid';
 use Parse::Syslog;
 
-my $VERSION = "1.14g3";
+my $VERSION = "1.15+g+d";
 
 # config
 my $rrdstep = 60;
@@ -35,9 +35,10 @@ my $logfile;
 my $rrd = "mailgraph.rrd";
 my $rrd_virus = "mailgraph_virus.rrd";
 my $rrd_greylist = "mailgraph_greylist.rrd";
+my $rrd_dane = "mailgraph_dane.rrd";
 my $year;
 my $this_minute;
-my %sum = ( sent => 0, received => 0, bounced => 0, rejected => 0, virus => 0, spam => 0, greylisted => 0, delayed => 0);
+my %sum = ( sent => 0, received => 0, bounced => 0, rejected => 0, virus => 0, spam => 0, greylisted => 0, delayed => 0, anonymoustls => 0, trustedtls => 0, untrustedtls => 0, verifiedtls => 0);
 my $rrd_inited=0;
 
 my %opt = ();
@@ -53,6 +54,10 @@ sub event_virus($);
 sub event_spam($);
 sub event_greylisted($);
 sub event_delayed($);
+sub event_anonymoustls($);
+sub event_trustedtls($);
+sub event_untrustedtls($);
+sub event_verifiedtls($);
 sub init_rrd($);
 sub update($);
 
@@ -76,6 +81,7 @@ sub usage
 	print "  --no-mail-rrd      no update mail rrd\n";
 	print "  --no-virus-rrd     no update virus rrd\n";
 	print "  --no-greylist-rrd  no update greylist rrd\n";
+	print "  --no-dane-rrd  no update dane rrd\n";
 	print "  --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files\n";
 	print "  --lmtp-is-smtp     treat LMTP as SMTP\n";
 	print "  --rbl-is-spam      count rbl rejects as spam\n";
@@ -92,6 +98,7 @@ sub main
 		'daemon_pid|daemon-pid=s', 'daemon_rrd|daemon-rrd=s',
 		'daemon_log|daemon-log=s', 'ignore-localhost!', 'ignore-host=s@',
 		'no-mail-rrd', 'no-virus-rrd', 'no-greylist-rrd', 'rrd_name|rrd-name=s',
+		'no-mail-rrd', 'no-virus-rrd', 'no-greylist-rrd', 'no-dane-rrd', 'rrd_name|rrd-name=s',
 		'lmtp-is-smtp', 'rbl-is-spam', 'virbl-is-virus'
 		) or exit(1);
 	usage if $opt{help};
@@ -107,6 +114,7 @@ sub main
 	$rrd		= $opt{rrd_name}.".rrd" if defined $opt{rrd_name};
 	$rrd_virus	= $opt{rrd_name}."_virus.rrd" if defined $opt{rrd_name};
 	$rrd_greylist	= $opt{rrd_name}."_greylist.rrd" if defined $opt{rrd_name};
+	$rrd_dane	= $opt{rrd_name}."_dane.rrd" if defined $opt{rrd_name};
 
 	# compile --ignore-host regexps
 	if(defined $opt{'ignore-host'}) {
@@ -203,6 +211,27 @@ sub init_rrd($)
 	elsif(-f $rrd) {
 		$this_minute = RRDs::last($rrd) + $rrdstep;
 	}
+	# dane rrd
+	if(! -f $rrd_dane and ! $opt{'no-dane-rrd'}) {
+		RRDs::create($rrd_dane, '--start', $m, '--step', $rrdstep,
+				'DS:anonymoustls:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:trustedtls:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:untrustedtls:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:verifiedtls:ABSOLUTE:'.($rrdstep*2).':0:U',
+				"RRA:AVERAGE:0.5:$day_steps:$realrows",   # day
+				"RRA:AVERAGE:0.5:$week_steps:$realrows",  # week
+				"RRA:AVERAGE:0.5:$month_steps:$realrows", # month
+				"RRA:AVERAGE:0.5:$year_steps:$realrows",  # year
+				"RRA:MAX:0.5:$day_steps:$realrows",   # day
+				"RRA:MAX:0.5:$week_steps:$realrows",  # week
+				"RRA:MAX:0.5:$month_steps:$realrows", # month
+				"RRA:MAX:0.5:$year_steps:$realrows",  # year
+				);
+			$this_minute = $m;
+	}
+	elsif(-f $rrd_dane and ! defined $rrd_dane) {
+		$this_minute = RRDs::last($rrd_dane) + $rrdstep;
+	}
 
 	# virus rrd
 	if(! -f $rrd_virus and ! $opt{'no-virus-rrd'}) {
@@ -269,7 +298,20 @@ sub process_line($)
 			elsif($text =~ /\bstatus=bounced\b/) {
 				event($time, 'bounced');
 			}
+			elsif($text =~ /Anonymous TLS connection established to/) {
+				event($time, 'anonymoustls');
+			}
+			elsif($text =~ /Trusted TLS connection established to/) {
+				event($time, 'trustedtls');
+			}
+			elsif($text =~ /Untrusted TLS connection established to/) {
+				event($time, 'untrustedtls');
+			}
+			elsif($text =~ /Verified TLS connection established to/) {
+				event($time, 'verifiedtls');
+			}
 		}
+		
 		elsif($prog eq 'local') {
 			if($text =~ /\bstatus=bounced\b/) {
 				event($time, 'bounced');
@@ -582,16 +624,18 @@ sub update($)
 	return 1 if $m == $this_minute;
 	return 0 if $m < $this_minute;
 
-	print "update $this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}:$sum{virus}:$sum{spam}:$sum{greylisted}:$sum{delayed}\n" if $opt{verbose};
+	print "update $this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}:$sum{virus}:$sum{spam}:$sum{greylisted}:$sum{delayed}:$sum{anonymoustls}:$sum{trustedtls}:$sum{untrustedtls}:$sum{verifiedtls}\n" if $opt{verbose};
 	RRDs::update $rrd, "$this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}" unless $opt{'no-mail-rrd'};
 	RRDs::update $rrd_virus, "$this_minute:$sum{virus}:$sum{spam}" unless $opt{'no-virus-rrd'};
 	RRDs::update $rrd_greylist, "$this_minute:$sum{greylisted}:$sum{delayed}" unless $opt{'no-greylist-rrd'};
+	RRDs::update $rrd_dane, "$this_minute:$sum{anonymoustls}:$sum{trustedtls}:$sum{untrustedtls}:$sum{verifiedtls}" unless $opt{'no-dane-rrd'};
 	if($m > $this_minute+$rrdstep) {
 		for(my $sm=$this_minute+$rrdstep;$sm<$m;$sm+=$rrdstep) {
 			print "update $sm:0:0:0:0:0:0:0:0 (SKIP)\n" if $opt{verbose};
 			RRDs::update $rrd, "$sm:0:0:0:0" unless $opt{'no-mail-rrd'};
 			RRDs::update $rrd_virus, "$sm:0:0" unless $opt{'no-virus-rrd'};
 			RRDs::update $rrd_greylist, "$sm:0:0" unless $opt{'no-greylist-rrd'};
+			RRDs::update $rrd_dane, "$sm:0:0:0:0" unless $opt{'no-dane-rrd'};
 		}
 	}
 	$this_minute = $m;
@@ -601,8 +645,12 @@ sub update($)
 	$sum{rejected}=0;
 	$sum{virus}=0;
 	$sum{spam}=0;
-        $sum{greylisted}=0;
-        $sum{delayed}=0;
+	$sum{greylisted}=0;
+	$sum{delayed}=0;
+	$sum{anonymoustls}=0;
+	$sum{trustedtls}=0;
+	$sum{untrustedtls}=0;
+	$sum{verifiedtls}=0;
 	return 1;
 }
 
@@ -638,6 +686,7 @@ B<mailgraph> [I<options>...]
  --no-mail-rrd      do not update mail rrd
  --no-virus-rrd     do not update virus rrd
  --no-greylist-rrd  do not update greylist rrd
+ --no-dane-rrd  do not update dane rrd
  --rrd-name=NAME    use NAME.rrd and NAME_virus.rrd for the rrd files
  --rbl-is-spam      count rbl rejects as spam
  --virbl-is-virus   count virbl rejects as viruses

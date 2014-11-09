@@ -8,7 +8,7 @@
 use RRDs;
 use POSIX qw(uname);
 
-my $VERSION = "1.14g";
+my $VERSION = "1.15+g+d";
 
 my $host = (POSIX::uname())[1];
 my $scriptname = 'mailgraph.cgi';
@@ -17,9 +17,11 @@ my $points_per_sample = 3;
 my $ypoints = 160;
 my $ypoints_err = 96;
 my $ypoints_grey = 96;
+my $ypoints_dane = 96;
 my $rrd = '/var/lib/mailgraph/mailgraph.rrd'; # path to where the RRD database is
 my $rrd_virus = '/var/lib/mailgraph/mailgraph_virus.rrd'; # path to where the Virus RRD database is
 my $rrd_greylist = '/var/lib/mailgraph/mailgraph_greylist.rrd'; # path to where the Greylist RRD database is
+my $rrd_dane = '/var/lib/mailgraph/mailgraph_dane.rrd'; # path to where the DANE RRD database is
 my $tmp_dir = '/var/lib/mailgraph'; # temporary directory where to store the images
 
 # note: the following ranges must match with the RRA ranges
@@ -32,14 +34,18 @@ my @graphs = (
 );
 
 my %color = (
-	sent     => '000099', # rrggbb in hex
-	received => '009900',
-	rejected => 'AA0000', 
-	bounced  => '000000',
-	virus    => 'DDBB00',
-	spam     => '999999',
-        greylisted => '999999',
-	delayed => '006400',
+	sent		=> '000099', # rrggbb in hex
+	received	=> '009900',
+	rejected	=> 'AA0000',
+	bounced		=> '000000',
+	virus		=> 'DDBB00',
+	spam		=> '999999',
+	greylisted	=> '999999',
+	delayed		=> '006400',
+	anonymoustls	=> '000099',
+	trustedtls	=> '009900',
+	untrustedtls	=> 'AA0000',
+	verifiedtls	=> '000000',
 );
 
 sub rrd_graph(@)
@@ -186,6 +192,57 @@ sub graph_grey($$)
         );
 }
 
+sub graph_dane($$)
+{
+	my ($range, $file) = @_;
+	my $step = $range*$points_per_sample/$xpoints;
+	rrd_graph($range, $file, $ypoints_dane,
+		"DEF:anonymoustls=$rrd_dane:anonymoustls:AVERAGE",
+		"DEF:manonymoustls=$rrd_dane:anonymoustls:MAX",
+		"CDEF:ranonymoustls=anonymoustls,60,*",
+		"CDEF:danonymoustls=anonymoustls,UN,0,anonymoustls,IF,$step,*",
+		"CDEF:sanonymoustls=PREV,UN,danonymoustls,PREV,IF,danonymoustls,+",
+		"CDEF:rmanonymoustls=manonymoustls,60,*",
+		"AREA:ranonymoustls#$color{anonymoustls}:Out Anonymous TLS",
+		'GPRINT:sanonymoustls:MAX:total\: %8.0lf msgs',
+		'GPRINT:ranonymoustls:AVERAGE:avg\: %5.2lf msgs/min',
+		'GPRINT:rmanonymoustls:MAX:max\: %4.0lf msgs/min\l',
+
+		"DEF:trustedtls=$rrd_dane:trustedtls:AVERAGE",
+		"DEF:mtrustedtls=$rrd_dane:trustedtls:MAX",
+		"CDEF:rtrustedtls=trustedtls,60,*",
+		"CDEF:dtrustedtls=trustedtls,UN,0,trustedtls,IF,$step,*",
+		"CDEF:strustedtls=PREV,UN,dtrustedtls,PREV,IF,dtrustedtls,+",
+		"CDEF:rmtrustedtls=mtrustedtls,60,*",
+		"STACK:rtrustedtls#$color{trustedtls}:Out Trusted TLS  ",
+		'GPRINT:strustedtls:MAX:total\: %8.0lf msgs',
+		'GPRINT:rtrustedtls:AVERAGE:avg\: %5.2lf msgs/min',
+		'GPRINT:rmtrustedtls:MAX:max\: %4.0lf msgs/min\l',
+		
+		"DEF:untrustedtls=$rrd_dane:untrustedtls:AVERAGE",
+		"DEF:muntrustedtls=$rrd_dane:untrustedtls:MAX",
+		"CDEF:runtrustedtls=untrustedtls,60,*",
+		"CDEF:duntrustedtls=untrustedtls,UN,0,untrustedtls,IF,$step,*",
+		"CDEF:suntrustedtls=PREV,UN,duntrustedtls,PREV,IF,duntrustedtls,+",
+		"CDEF:rmuntrustedtls=muntrustedtls,60,*",
+		"STACK:runtrustedtls#$color{untrustedtls}:Out Untrusted TLS",
+		'GPRINT:suntrustedtls:MAX:total\: %8.0lf msgs',
+		'GPRINT:runtrustedtls:AVERAGE:avg\: %5.2lf msgs/min',
+		'GPRINT:rmuntrustedtls:MAX:max\: %4.0lf msgs/min\l',
+		
+		"DEF:verifiedtls=$rrd_dane:verifiedtls:AVERAGE",
+		"DEF:mverifiedtls=$rrd_dane:verifiedtls:MAX",
+		"CDEF:rverifiedtls=verifiedtls,60,*",
+		"CDEF:dverifiedtls=verifiedtls,UN,0,verifiedtls,IF,$step,*",
+		"CDEF:sverifiedtls=PREV,UN,dverifiedtls,PREV,IF,dverifiedtls,+",
+		"CDEF:rmverifiedtls=mverifiedtls,60,*",
+		"LINE2:rverifiedtls#$color{verifiedtls}:Out Verified TLS ",
+		'GPRINT:sverifiedtls:MAX:total\: %8.0lf msgs',
+		'GPRINT:rverifiedtls:AVERAGE:avg\: %5.2lf msgs/min',
+		'GPRINT:rmverifiedtls:MAX:max\: %4.0lf msgs/min\l',
+	);
+}
+
 sub print_html()
 {
 	print "Content-Type: text/html\n\n";
@@ -216,6 +273,7 @@ HEADER
 		print "<p><img src=\"$scriptname?${n}-n\" alt=\"mailgraph\"/><br/>\n";
 		print "<img src=\"$scriptname?${n}-e\" alt=\"mailgraph\"/></p>\n";
 		print "<img src=\"$scriptname?${n}-g\" alt=\"mailgraph\"/></p>\n";
+		print "<img src=\"$scriptname?${n}-d\" alt=\"mailgraph\"/></p>\n";
 	}
 
 	print <<FOOTER;
@@ -239,9 +297,9 @@ sub send_image($)
 		exit 1;
 	};
 
-	print "Content-type: image/png\n" unless $ARGV[0];
-	print "Content-length: ".((stat($file))[7])."\n" unless $ARGV[0];
-	print "\n" unless $ARGV[0];
+	print "Content-type: image/png\n";
+	print "Content-length: ".((stat($file))[7])."\n";
+	print "\n";
 	open(IMG, $file) or die;
 	my $data;
 	print $data while read(IMG, $data, 16384)>0;
@@ -256,7 +314,7 @@ sub main()
 	mkdir $tmp_dir, 0777 unless -d $tmp_dir;
 	mkdir "$tmp_dir/$uri", 0777 unless -d "$tmp_dir/$uri";
 
-	my $img = $ARGV[0] || $ENV{QUERY_STRING};
+	my $img = $ENV{QUERY_STRING};
 	if(defined $img and $img =~ /\S/) {
 		if($img =~ /^(\d+)-n$/) {
 			my $file = "$tmp_dir/$uri/mailgraph_$1.png";
@@ -271,6 +329,11 @@ sub main()
 		elsif($img =~ /^(\d+)-e$/) {
 			my $file = "$tmp_dir/$uri/mailgraph_$1_err.png";
 			graph_err($graphs[$1]{seconds}, $file);
+			send_image($file);
+		}
+		elsif($img =~ /^(\d+)-d$/) {
+			my $file = "$tmp_dir/$uri/mailgraph_$1_dane.png";
+			graph_dane($graphs[$1]{seconds}, $file);
 			send_image($file);
 		}
 		else {
