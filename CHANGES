@@ -1,6 +1,18 @@
-
+1.xx (2014-11-09)
+-----------------
 * --ignore-host fixes (Immo Goltz)
 
+1.14g3 (2008-05-26)
+-----------------
+* modified for work with old and new postgrey versions
+
+1.14g2 (2008-05-12)
+-----------------
+* modified for work with new postgrey versions
+
+1.14g (2008-01-03)
+-----------------
+* add support for Greylist (Alexander Bech)
 
 1.15 (UNRELEASED)
 -----------------
