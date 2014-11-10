@@ -38,7 +38,7 @@ my $rrd_greylist = "mailgraph_greylist.rrd";
 my $rrd_dane = "mailgraph_dane.rrd";
 my $year;
 my $this_minute;
-my %sum = ( sent => 0, received => 0, bounced => 0, rejected => 0, virus => 0, spam => 0, greylisted => 0, delayed => 0, anonymoustls => 0, trustedtls => 0, untrustedtls => 0, verifiedtls => 0);
+my %sum = ( sent => 0, received => 0, bounced => 0, rejected => 0, virus => 0, spam => 0, greylisted => 0, delayed => 0, anonymoustls => 0, trustedtls => 0, untrustedtls => 0, verifiedtls => 0, anonymoustlsin => 0, trustedtlsin => 0, untrustedtlsin => 0, verifiedtlsin => 0 );
 my $rrd_inited=0;
 
 my %opt = ();
@@ -58,6 +58,10 @@ sub event_anonymoustls($);
 sub event_trustedtls($);
 sub event_untrustedtls($);
 sub event_verifiedtls($);
+sub event_anonymoustlsin($);
+sub event_trustedtlsin($);
+sub event_untrustedtlsin($);
+sub event_verifiedtlsin($);
 sub init_rrd($);
 sub update($);
 
@@ -210,6 +214,7 @@ sub init_rrd($)
 	elsif(-f $rrd) {
 		$this_minute = RRDs::last($rrd) + $rrdstep;
 	}
+
 	# dane rrd
 	if(! -f $rrd_dane and ! $opt{'no-dane-rrd'}) {
 		RRDs::create($rrd_dane, '--start', $m, '--step', $rrdstep,
@@ -217,6 +222,10 @@ sub init_rrd($)
 				'DS:trustedtls:ABSOLUTE:'.($rrdstep*2).':0:U',
 				'DS:untrustedtls:ABSOLUTE:'.($rrdstep*2).':0:U',
 				'DS:verifiedtls:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:anonymoustlsin:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:trustedtlsin:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:untrustedtlsin:ABSOLUTE:'.($rrdstep*2).':0:U',
+				'DS:verifiedtlsin:ABSOLUTE:'.($rrdstep*2).':0:U',
 				"RRA:AVERAGE:0.5:$day_steps:$realrows",   # day
 				"RRA:AVERAGE:0.5:$week_steps:$realrows",  # week
 				"RRA:AVERAGE:0.5:$month_steps:$realrows", # month
@@ -352,6 +361,20 @@ sub process_line($)
 				else {
 					event($time, 'rejected');
 				}
+			}
+			# Note: the log line with TLS info comes first, followed by greylisting, filter etc.
+			# Thus we probably count more TLC connections than received/sent mail 
+			elsif($text =~ /Anonymous TLS connection established from/) {
+				event($time, 'anonymoustlsin');
+			}
+			elsif($text =~ /Trusted TLS connection established from/) {
+				event($time, 'trustedtlsin');
+			}
+			elsif($text =~ /Untrusted TLS connection established from/) {
+				event($time, 'untrustedtlsin');
+			}
+			elsif($text =~ /Verified TLS connection established from/) {
+				event($time, 'verifiedtlsin');
 			}
 		}
 		elsif($prog eq 'error') {
@@ -623,18 +646,18 @@ sub update($)
 	return 1 if $m == $this_minute;
 	return 0 if $m < $this_minute;
 
-	print "update $this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}:$sum{virus}:$sum{spam}:$sum{greylisted}:$sum{delayed}:$sum{anonymoustls}:$sum{trustedtls}:$sum{untrustedtls}:$sum{verifiedtls}\n" if $opt{verbose};
+	print "update $this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}:$sum{virus}:$sum{spam}:$sum{greylisted}:$sum{delayed}:$sum{anonymoustls}:$sum{trustedtls}:$sum{untrustedtls}:$sum{verifiedtls}:$sum{anonymoustlsin}:$sum{trustedtlsin}:$sum{untrustedtlsin}:$sum{verifiedtlsin}\n" if $opt{verbose};
 	RRDs::update $rrd, "$this_minute:$sum{sent}:$sum{received}:$sum{bounced}:$sum{rejected}" unless $opt{'no-mail-rrd'};
 	RRDs::update $rrd_virus, "$this_minute:$sum{virus}:$sum{spam}" unless $opt{'no-virus-rrd'};
 	RRDs::update $rrd_greylist, "$this_minute:$sum{greylisted}:$sum{delayed}" unless $opt{'no-greylist-rrd'};
-	RRDs::update $rrd_dane, "$this_minute:$sum{anonymoustls}:$sum{trustedtls}:$sum{untrustedtls}:$sum{verifiedtls}" unless $opt{'no-dane-rrd'};
+	RRDs::update $rrd_dane, "$this_minute:$sum{anonymoustls}:$sum{trustedtls}:$sum{untrustedtls}:$sum{verifiedtls}:$sum{anonymoustlsin}:$sum{trustedtlsin}:$sum{untrustedtlsin}:$sum{verifiedtlsin}" unless $opt{'no-dane-rrd'};
 	if($m > $this_minute+$rrdstep) {
 		for(my $sm=$this_minute+$rrdstep;$sm<$m;$sm+=$rrdstep) {
 			print "update $sm:0:0:0:0:0:0:0:0 (SKIP)\n" if $opt{verbose};
 			RRDs::update $rrd, "$sm:0:0:0:0" unless $opt{'no-mail-rrd'};
 			RRDs::update $rrd_virus, "$sm:0:0" unless $opt{'no-virus-rrd'};
 			RRDs::update $rrd_greylist, "$sm:0:0" unless $opt{'no-greylist-rrd'};
-			RRDs::update $rrd_dane, "$sm:0:0:0:0" unless $opt{'no-dane-rrd'};
+			RRDs::update $rrd_dane, "$sm:0:0:0:0:0:0:0:0" unless $opt{'no-dane-rrd'};
 		}
 	}
 	$this_minute = $m;
@@ -650,6 +673,10 @@ sub update($)
 	$sum{trustedtls}=0;
 	$sum{untrustedtls}=0;
 	$sum{verifiedtls}=0;
+	$sum{anonymoustlsin}=0;
+	$sum{trustedtlsin}=0;
+	$sum{untrustedtlsin}=0;
+	$sum{verifiedtlsin}=0;
 	return 1;
 }
 
