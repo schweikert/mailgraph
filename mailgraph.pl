@@ -287,6 +287,24 @@ sub process_line($)
 			if($text =~ /^[0-9A-Za-z]+: (?:reject|discard): /) {
 				event($time, 'rejected');
 			}
+			## Added sbidy
+			elsif($text =~ /^(?:[0-9A-Za-z]+: |NOQUEUE: )?milter-reject: /) {
+				if($text =~ /Blocked by SpamAssassin/) {
+					event($time, 'spam');
+				}
+				else {
+					event($time, 'rejected');
+				}
+			}
+			## In version 1.14
+			##elsif($text =~ /^(?:[\dA-F]+: |[\dB-DF-HJ-NP-TV-Zb-df-hj-np-tv-z]+: |NOQUEUE: )?milter-reject: /) {
+                        ##        if($text =~ /Blocked by SpamAssassin/) {
+                        ##                event($time, 'spam');
+                        ##        } 
+                        ##        else {
+                        ##                event($time, 'rejected');
+                        ##        }
+                        ##}
 		}
 		elsif($prog eq 'postscreen') {
 			if($text =~ /NOQUEUE: reject: RCPT from .* /) {
