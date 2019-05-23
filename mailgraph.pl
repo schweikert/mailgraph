@@ -117,7 +117,7 @@ sub main
 
 	daemonize if $opt{daemon};
 
-	my $logfile = defined $opt{logfile} ? $opt{logfile} : '/var/log/syslog';
+	$logfile = defined $opt{logfile} ? $opt{logfile} : '/var/log/syslog';
 	my $file;
 	if($opt{cat}) {
 		$file = $logfile;
@@ -372,10 +372,11 @@ sub process_line($)
 		}
 	}
 	elsif($prog eq 'exim') {
-		if($text =~ /^[0-9a-zA-Z]{6}-[0-9a-zA-Z]{6}-[0-9a-zA-Z]{2} <= \S+/) {
+		my $prefix = (index($logfile, 'syslog') == -1) ? '^' : '';
+		if($text =~ /$prefix[0-9a-zA-Z]{6}-[0-9a-zA-Z]{6}-[0-9a-zA-Z]{2} <= \S+/) {
 			event($time, 'received');
 		}
-		elsif($text =~ /^[0-9a-zA-Z]{6}-[0-9a-zA-Z]{6}-[0-9a-zA-Z]{2} => \S+/) {
+		elsif($text =~ /$prefix[0-9a-zA-Z]{6}-[0-9a-zA-Z]{6}-[0-9a-zA-Z]{2} => \S+/) {
 			event($time, 'sent');
 		}
 		elsif($text =~ / rejected because \S+ is in a black list at \S+/) {
